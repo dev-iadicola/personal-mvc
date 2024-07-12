@@ -2,10 +2,12 @@
 
 # il Bootstrap dell'applicazione
 
+
+
 class Mvc
 {
 
-    // proprietà pubbliche 
+   
 
     public $request;
     public $response;
@@ -14,16 +16,15 @@ class Mvc
     public function __construct(
         public array $routes
     ) {
-        echo 'Bootstrap of the app ';
+        
+        // instanza delle classi essenziali per il core dell'applicazione
 
+        //metodo services cointainer 
         $this->request = new Request();
         $this->response = new Response();
-       $this->router = new Router(
-        request: $this->request, 
-        routes: $this->routes
-       );
-
-        //$richiesta = $_SERVER['REQUEST_URI'];
-        //echo $routes[$richiesta] ?? 'Page not found.';
+        $this->router = new Router(
+            request: $this->request,
+            routes: $this->routes
+        );
     }
 }

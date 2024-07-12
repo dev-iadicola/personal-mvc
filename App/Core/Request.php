@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Sfruttare la richiesta HTTP per riconoscerne il metodo e l'URI
+ * 
+ * recuperare il metodo
+ */
 class Request
 {
 

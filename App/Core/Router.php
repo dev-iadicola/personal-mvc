@@ -1,14 +1,30 @@
 <?php
 
+/**
+ * 
+ * invocato il metood resolve
+ */
 class Router{
      public function __construct(
         public Request $request, 
         public array $routes
         ) {
-        // var_dump($request);
+            
+        $this->resolve();
 
-        echo $request->getRequestPath();
-        echo $request->getRequestMethod();
+    }
 
+    public function resolve(){
+        // il metodo verifica la tipologia di richiesta (GET o POST)
+        $method = $this->request->getRequestMethod(); //prendiamo il metodo
+        $path = $this->request->getRequestPath();
+        $response = $this->routes[$method][$path] ?? false; 
+       // visualizza se la risorsa nel ffile routes è presente nell'array
+       //altrimenti risulterà una pagina non trovata
+        if(!$response){
+        echo 'Page not found';
+       }else{
+        echo $response;
+       }
     }
 }
