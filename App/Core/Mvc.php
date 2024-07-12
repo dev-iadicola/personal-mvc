@@ -1,13 +1,18 @@
 <?php
-
 # il Bootstrap dell'applicazione
+
+
+namespace App\Core;
+
+use App\Core\Http\Request;
+use App\Core\Http\Response;
+use App\Core\Http\Router;
+
 
 
 
 class Mvc
 {
-
-   
 
     public $request;
     public $response;

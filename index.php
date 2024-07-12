@@ -1,13 +1,10 @@
 <?php
+use \App\Core\Mvc;
+// tutte le classi necessarie con la singola dipendenza di compoeser col namespace 
+require_once __DIR__.'/vendor/autoload.php';
 
-
-$richiesta = $_SERVER['REQUEST_URI'];
-
+// gestione delle rotte
 $routes = include __DIR__.'/config/routes.php'; // gestone rotte
 
-require_once __DIR__.'/app/Core/Mvc.php';
-require_once __DIR__.'/app/Core/Request.php';
-require_once __DIR__.'/app/Core/Response.php';
-require_once __DIR__.'/app/Core/Router.php';
-
+// il core dell'architettura MVC
 $app = new Mvc($routes);

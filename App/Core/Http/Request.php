@@ -1,5 +1,6 @@
 <?php
 
+namespace App\Core\Http;
 /**
  * Sfruttare la richiesta HTTP per riconoscerne il metodo e l'URI
  * 

@@ -1,9 +1,12 @@
 <?php
-
 /**
  * 
  * invocato il metood resolve
  */
+
+namespace App\Core\Http;
+
+
 class Router{
      public function __construct(
         public Request $request, 
