@@ -1,7 +1,15 @@
+# Disabilita l'indicizzazione delle directory e il supporto per MultiViews
 Options -Indexes -Multiviews
 
+# Abilitazione Motore di Riscrittura
 RewriteEngine On
 
+# Condizione di riscritture: se file e direcotry non esisotno 
 RewriteCond %{REQUEST_FILENAME} !-f 
 RewriteCond %{REQUEST_FILENAME} !-d
+
+# Rendirizzamento al file index.php
 RewriteRule ^ index.php [L]
+
+# Protezione file di configurazione 
+RewriteRule \.(env|json|log|lock)$ - [F]
