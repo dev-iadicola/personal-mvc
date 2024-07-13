@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Core\Http;
 
 /**
@@ -18,40 +19,48 @@ use App\Core\Mvc;
 
 class Router
 {
-    public function __construct(public Mvc $mvc) {
+    public function __construct(public Mvc $mvc)
+    {
     }
 
-    public function getRoute(){
+    /**
+     *
+         Cerca all'interno del file 'config/routes.php'
+         la presenza del metodo associato alla richiesta URI
+
+     */
+    public function getRoute()
+    {
 
         // otteiene il metodo HTTP della richiesta (GET o POST)
         $method = $this->mvc->request->getRequestMethod(); //prendiamo il metodo
         // Ottienne il percorso URI della richiesta. es: '/home'
         $path = $this->mvc->request->getRequestPath(); // prendiamo la stringa per la request URI effettuata dall'utente
         $route = $this->mvc->config['routes'];
-        return  $route[$method][$path] ?? false;
+        return  $route[$method][$path] ?? false; //risposta
     }
-           
+
     // il metodo verifica la richiesta HTTP
     public function resolve()
     {
-       $response = $this->getRoute();
 
-       //var_dump($response);
-         // Verifica se la combinazione metodo/percorso esiste nelle rotte definite
-        // Se non esiste, viene restituito false e la pagina "Page not found 404" viene visualizzata
+        $response = $this->getRoute();
+
+
+        //se metodo HTTP e la request URI non sono presenti ritorna una pagina di error 404
         if (!$response) {
-            echo 'Page not found';
+            echo 'Page not found 404';
         } else {
+
             // Se la rotta esiste, prendiamo il controller e il metodo da chiamare
-            
             $controller = $response[0]; //il controller
             $action = $response[1]; // l'action
 
- 
             //creazione istanza del controller selezionato
-            $instance = new $controller($this->mvc);
+            $instance = new $controller($this->mvc); //passiamo in input tutta l'istanza MVC 
 
-            call_user_func_array([$instance, $action], []); //invocazione metodo 
+
+            call_user_func_array([$instance, $action], []); // azione del controller 
 
         }
     }

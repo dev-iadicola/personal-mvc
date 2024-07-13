@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/assets/style.css">
+    <script src="/assets/lib.js" defer></script>
     <title>Personal MVC with PHP 8</title>
 </head>
 <body>
+
     <header>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/portfolio">Portfolio</a></li>
-                <li><a href="/contatti">Contatti</a></li>
-            </ul>
-        </nav>
+        <div id="menu-icon">
+            <span id="barra-1"></span>
+            <span id="barra-2"></span>
+            <span id="barra-3"></span>
+        </div>
+        <div id="menu" class="chiuso">
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/portfolio">Portfolio</a></li>
+                    <li><a href="/contatti">Contatti</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
+
     <main>
         {{page}}
     </main>
