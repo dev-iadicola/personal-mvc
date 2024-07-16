@@ -13,6 +13,11 @@ class HomeController extends Controller {
 
     public function index(){
 
-        $this->render('home');
+        // recupero dati dal DB
+        $descrizione = "Descrizione della home page";
+
+        $this->render('home', [
+            'descrizione' => $descrizione,
+        ]);
     }
 }

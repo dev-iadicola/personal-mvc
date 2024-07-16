@@ -1,57 +1,106 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&display=swap');
 
-:root{
+:root {
+    font-family: "Quicksand", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    --color-text: #555;
+    --color-design: #51e2f5;
+}
 
-
-
-  font-family: "Quicksand", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 600;
-  font-style: normal;
-  --color-text: #555;
-  --color-design:  #51e2f5;
+.color-red{
+    color: red;
+}
+.form-format{
+ display: flex;
+ flex-direction: column;
+ gap: 0.2rem;
 
 }
+
+.btn {
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+    border: solid 1px black;
+    border-radius: 5px;
+
+    transition: all 1s;
+}
+
+.btn:hover{
+    color: white;
+    cursor: pointer;
+}
+
+.btn-dblue{
+    background-color: dodgerblue;
+    color: #d3d3d3;
+
+}
+.form-format input {
+    padding: 3px;
+    margin-bottom: 3px;
+
+}
+.form-format label{
+    text-align: left;
+} 
 
 * {
     margin: 0;
     padding: 0;
 }
-body{
+
+.alert{
+    border: solid 1px gray;
+    border-radius: 10px;
+    padding: 10px 15px;
+    text-align: start;
+    margin: 10px;
+
+}
+
+.bg-success{
+    background-color: rgba(51, 160, 51, 0.786);
+    color: white;
+}
+body {
     color: var(--color-text);
     display: flex;
     flex-direction: column;
     text-align: center;
-   
+
 }
 
 header {
     margin-bottom: 4rem;
 }
-main{
+
+main {
     padding: 1rem;
 }
+
 footer {
     font-size: 1rem;
 }
 
-#menu{
+#menu {
     position: fixed;
     z-index: 10;
-    inset:0;
-    
+    inset: 0;
+
     background-color: var(--color-design);
     opacity: 0.95;
 }
 
-#menu.chiuso{
-    transform:  translateX(100vw);
+#menu.chiuso {
+    transform: translateX(100vw);
     transition: all .5 ease-in-out;
 }
 
-#menu.aperto{
-    transform:  translateX(0vw);
+#menu.aperto {
+    transform: translateX(0vw);
     transition: all .5 ease-in-out;
 }
 
@@ -74,24 +123,79 @@ nav a {
     border-radius: 1rem;
 }
 
-nav a.active{
+nav a.active {
     background-color: #fff;
-    color:var(--color-design);
+    color: var(--color-design);
 }
 
 
-#barra-1, #barra-2, #barra-3{
+#barra-1,
+#barra-2,
+#barra-3 {
     background-color: var(--color-design);
     display: block;
     width: 2rem;
-    height: 5px;
+    height: 4px;
     margin: 0.4rem 0;
-    transition: .05;
+    transition: .5s;
     border-radius: 2px;
 }
-    
+
 #menu-icon {
     position: fixed;
     right: 1.2rem;
-    top: 1rem
+    top: 1rem;
+    cursor: pointer;
+    z-index: 30;
+}
+
+#menu-icon.trasforma #barra-2 {
+    opacity: 0;
+}
+
+#menu-icon.trasforma #barra-1 {
+    transform: rotate(-50deg) translate(-0.4rem, 0.4rem);
+    background-color: white;
+}
+
+#menu-icon.trasforma #barra-3 {
+    transform: rotate(50deg) translate(-0.5rem, -0.5rem);
+    background-color: white;
+}
+
+@media(min-width: 700px){
+    #menu-icon{
+        display: none;
+    }
+    #menu {
+        position: relative;
+        height: 2.6rem;
+        background-color: var(--color-design);
+    }
+
+    #menu.chiuso {
+        transform:  translateX(0);
+    }
+
+    nav ul{
+        margin-top: 0;
+        display: flex;
+        height: 2.6rem;
+    }
+    nav li{
+        margin-left: 1.3rem;
+        height: inherit;
+        line-height: 2.6rem;
+    }
+
+    nav li:last-of-type{
+        margin-left: auto;
+        margin-right: 1rem;
+    }
+
+    nav a {
+        font-size: 1rem;
+    }
+
+
 }

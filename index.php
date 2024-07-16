@@ -20,13 +20,16 @@ Config::env(__DIR__.'/.env'); // caricamento variabili d'ambiente del file .env
 /**
  * Due file principali per la connfigurazione, folder.php e routes.php
  * 
- * $config è un array con due elementi:
+ * $config è un array con tre elementi:
  * un elemento con chiave folder e un elemento con chiave ruote
  * quindi associamo il nome del file (esclusa estensione) alla chiave dell'elemento
+ *  
+ * il secondo elemento sono le routes del file routes.php:
+ * con all'interno un array associativo
  * 
+ * il terzo elemento è un array contenente il menu che ha come chiave la path e come valore il nome del link
  */
 $config = Config::dir(__DIR__.'/config');
-// var_dump($config);
 
 // istanza Mvc che è il CORE dell'architettura MVC
 /**

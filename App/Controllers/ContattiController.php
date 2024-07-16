@@ -11,7 +11,18 @@ class ContattiController extends Controller {
     }
 
     public function index(){
+        // gestione richiesta get
+        $this->render('contatti',[
+            'message' => '',      
+        ]);
+    }
 
-        $this->render('contatti');
+    public function create(){
+        // gestione richiesta post
+
+        $this->render('contatti', [
+            'message' => 'Il messaggio è stato inviato!!',
+        ]);
+
     }
 }

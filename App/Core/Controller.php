@@ -14,8 +14,8 @@ class Controller{
      * @var $view inserire il file con estensione html per 
      */
 
-    public function render($view){
+    public function render($view, $contents = []){
         //reindirizzaento alla cartella views con il file scelto
-       $this->mvc->view->reder($view);
+       $this->mvc->view->reder($view, $contents);
     }
 }
