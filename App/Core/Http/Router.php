@@ -14,6 +14,7 @@ namespace App\Core\Http;
 
 
 
+use App\Core\Exception\NotFoundException;
 use App\Core\Http\Request;
 use App\Core\Mvc;
 
@@ -44,24 +45,25 @@ class Router
     public function resolve()
     {
 
-        $response = $this->getRoute();
+        $response = $this->getRoute(); //controllo corrispondenza richista per file routes.php
+
+        //se metodo HTTP e la request URI non sono presenti ritorna una eccezzione con codice status 404
+        if (!$response) throw new NotFoundException();
+
+        $this->dispatch( $response);
+
+          
+    }
+
+    public function dispatch($response){
+          // Se la rotta esiste, prendiamo il controller e il metodo da chiamare
+          $controller = $response[0]; //il controller
+          $action = $response[1]; // l'action
+
+          //creazione istanza del controller selezionato
+          $instance = new $controller($this->mvc); //passiamo in input tutta l'istanza MVC 
 
 
-        //se metodo HTTP e la request URI non sono presenti ritorna una pagina di error 404
-        if (!$response) {
-            echo 'Page not found 404';
-        } else {
-
-            // Se la rotta esiste, prendiamo il controller e il metodo da chiamare
-            $controller = $response[0]; //il controller
-            $action = $response[1]; // l'action
-
-            //creazione istanza del controller selezionato
-            $instance = new $controller($this->mvc); //passiamo in input tutta l'istanza MVC 
-
-
-            call_user_func_array([$instance, $action], []); // azione del controller 
-
-        }
+          call_user_func_array([$instance, $action], []); // azione del controller 
     }
 }

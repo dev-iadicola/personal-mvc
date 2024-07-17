@@ -1,1 +1,1 @@
-Pagina Portfolio
+@include('components.portfolioitem')

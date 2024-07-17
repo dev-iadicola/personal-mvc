@@ -16,11 +16,11 @@ use App\Core\Config;
  */
 Config::env(__DIR__.'/.env'); // caricamento variabili d'ambiente del file .env
 
-// istanza per la configurazione rotte
+// istanza per la configurazione
 /**
  * Due file principali per la connfigurazione, folder.php e routes.php
  * 
- * $config è un array con tre elementi:
+ * $config è un oggetto con tre elementi:
  * un elemento con chiave folder e un elemento con chiave ruote
  * quindi associamo il nome del file (esclusa estensione) alla chiave dell'elemento
  *  
