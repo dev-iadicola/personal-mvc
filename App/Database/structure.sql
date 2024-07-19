@@ -7,7 +7,19 @@ CREATE TABLE IF NOT EXISTS portfolio (
    overview TEXT,
    PRIMARY KEY(id)
 );
-insert INTO portfolio(title, overview) 
+
+
+ CREATE TABLE if NOT EXISTS contatti(
+ id INT PRIMARY KEY AUTO_INCREMENT ,
+ nome VARCHAR(100),
+ email VARCHAR(100),
+ messaggio TEXT
+ 
+ );
+ 
+ insert INTO portfolio(title, overview) 
 values('Titolo del primo portofolio','Descrizione del primo portofolio');
 insert INTO portfolio(title, overview)
  VALUES('Titolo del secondo portofolio','Descrizione del secondo portofolio');
+ 
+ 

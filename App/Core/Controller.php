@@ -1,31 +1,33 @@
 <?php
 namespace App\Core;
+use \App\Core\Mvc;
+/**
+ *  sommario di Controller
+ * 
+ * Tramite questa classe diamo la  base per 
+ * i controllers che estenderanno questa classe
+ * 
+ * 
+ */
 
+class Controller {
 
-use App\Core\Mvc;
-
-class Controller{
-
-    protected array $data = []; // Per memrorizzare i dati passati su controller
-
-    public function __construct(public Mvc $mvc){
-        Mvc::$mvc->view;
+    public function __construct(public Mvc $mvc) {
     }
 
-    /**
+        /**
      * reindirizzamento alla cartella
-     * @var $view inserire il file con estensione html per 
+     * @var $view inserire il file con estensione php per
+     * visualizzare la pagina
+     * @var array $values  
+     * All'interno di questo array insieramo  tutti i valori che sostituiranno 
+     * i placceholders. esempio {{page}} verrà sostituiro da una variabile con indice page presente in un array
+     *  
+     * per maggiori particolari,andare nel file View presente su /App/Core/View
      */
-
-    protected function render($view, $contents = []){
-        //reindirizzaento alla cartella views con il file scelto fitra le variabili tra pages e orm e quant'altro
-       $renderContent = $this->mvc->view->render($view, $contents);
-       
-        $this->mvc->response->setContent( $renderContent);
-
+    public function render($view, $values = []) {
+        $content = $this->mvc->view->render($view, $values);
+        $this->mvc->response->setContent($content);
     }
 
-    
-
-   
 }

@@ -27,7 +27,7 @@ return [
     ],
     // rotte disponibili per rihiesta POST
     'post' =>[
-        '/contatti' => [ContattiController::class,'create'],
+        '/contatti' => [ContattiController::class,'sendForm'],
     ]
 
 

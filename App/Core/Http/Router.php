@@ -1,69 +1,31 @@
 <?php
-
 namespace App\Core\Http;
+use \App\Core\Http\Request;
+use \App\Core\Mvc;
+use \App\Core\Exception\NotFoundException;
 
-/**
- * 
- * Classe Router che gestisce il routing delle richieste HTTP
- * La classe asscia una richiesta HTTP a un determinato controller e metodo rendendo 
- * quest'ultimo un 'action' per la request
- *  
- * invocatozione del metodo resolve nel costruttore.
- * 
- */
+class Router {
 
+    public function __construct(public Mvc $mvc) {}
 
-
-use App\Core\Exception\NotFoundException;
-use App\Core\Http\Request;
-use App\Core\Mvc;
-
-class Router
-{
-    public function __construct(public Mvc $mvc)
-    {
+    public function getRoute() {
+        $method = $this->mvc->request->getRequestMethod();
+        $path = $this->mvc->request->getRequestPath();
+        $routes = $this->mvc->config['routes'];
+        return $routes[$method][$path] ?? false;
     }
 
-    /**
-     *
-         Cerca all'interno del file 'config/routes.php'
-         la presenza del metodo associato alla richiesta URI
-
-     */
-    public function getRoute()
-    {
-
-        // otteiene il metodo HTTP della richiesta (GET o POST)
-        $method = $this->mvc->request->getRequestMethod(); //prendiamo il metodo
-        // Ottienne il percorso URI della richiesta. es: '/home'
-        $path = $this->mvc->request->getRequestPath(); // prendiamo la stringa per la request URI effettuata dall'utente
-        $route = $this->mvc->config['routes'];
-        return  $route[$method][$path] ?? false; //risposta
+    public function resolve() {
+        $response = $this->getRoute();
+        if(!$response) throw new NotFoundException();
+        $this->dispatch($response);
     }
 
-    // il metodo verifica la richiesta HTTP
-    public function resolve()
-    {
-
-        $response = $this->getRoute(); //controllo corrispondenza richista per file routes.php
-
-        //se metodo HTTP e la request URI non sono presenti ritorna una eccezzione con codice status 404
-        if (!$response) throw new NotFoundException();
-
-        $this->dispatch( $response);
-
-          
+    public function dispatch($response) {
+        $controller = $response[0];
+        $action = $response[1];
+        $instance = new $controller($this->mvc);
+        call_user_func_array([$instance, $action], []);
     }
 
-    public function dispatch($response){
-          // Se la rotta esiste, prendiamo il controller e il metodo da chiamare
-          $controller = $response[0]; //il controller
-          $action = $response[1]; // l'action
-
-          //creazione istanza del controller selezionato
-          $instance = new $controller($this->mvc); //passiamo in input tutta l'istanza MVC 
-
-
-          call_user_func_array([$instance, $action], []); // azione del controller 
-    }
 }

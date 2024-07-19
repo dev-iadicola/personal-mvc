@@ -1,92 +1,78 @@
 <?php
-# il Bootstrap dell'applicazione
- 
-/**
- * 
- * Un pattern MVC basato sul services container
- */
 namespace App\Core;
 
-use App\Core\Exception\NotFoundException;
-use App\Core\Http\Request;
-use App\Core\Http\Response;
-use App\Core\Http\Router;
-use App\Core\View;
+use \App\Core\Http\Request;
+use \App\Core\Http\Response;
+use \App\Core\Http\Router;
+use \App\Core\View;
+use \App\Core\Exception\NotFoundException;
+use \App\Core\Database;
 
-use App\Core\Database;
-use PDO;
-use PDOException;
-
-class Mvc
-{
-
+class Mvc {
+    // Istanza statica dell'oggetto Mvc, utilizzata per accedere globalmente all'istanza corrente
     public static Mvc $mvc;
-    public Request $request;
-    public Response $response;
-    public Router $router;
-    public View $view;
-    public PDO $pdo;
+
+    // Oggetti per gestire la richiesta, la risposta, le rotte e le viste
+    public Request $request; 
+    public Response $response; // Gestione della risposta al client
+    public Router $router; // Gestione delle rotte
+    public View $view; // Gestione delle viste
+    public \PDO $pdo; // Connessione PDO al database
 
     /**
-     * 
-     * Creazione istanze per il core dell'applicazione
-     * 
-     * @param array $config
+     * Costruttore della classe Mvc
+     *
+     * @param array $config Configurazione per l'applicazione (es. impostazioni del database, ecc.)
      */
     public function __construct(public array $config) {
+        // Imposta l'istanza statica dell'oggetto Mvc
         self::$mvc = $this;
-        $this->config = $config;
-        
-        // Gestione delle request
-        $this->request = new Request();
 
-        /**
-         * innettiamo tutta l'istanza dell'oggetto MVC
-         * per entrambi gli ultimi oggetti
-         * View e Router
-         */
+        // inizializza l'oggetto Request per gestire le richieste HTTP
+        $this->request = new Request();        
 
-        // gestione delle pagine web con include, componets e rimpiazzamento placeholders
+        // Inizializza l'oggetto View per gestire le viste
         $this->view = new View($this);
 
-        // Gestione delle risposte per il client
+        // inizializza l'oggetto Response per gestire la risposta HTTP
         $this->response = new Response($this->view);
 
-
-        // Garantisce che le richieste http e routes corrispondino 
+        // Inizializza l'oggetto Router per gestire il routing delle richieste
         $this->router = new Router($this);
 
-        $this->getPdoConnection(); // Otteniamo una connessione al database
+        // Inizializza la connessione al database e imposta il PDO per l'ORM
+        $this->getPdoConnection(); // Invochiamo la connessione
+        Orm::setPDO($this->pdo); 
     }
 
     /**
-     * Summary of getPdoConnection:
-     * 
-     * gestiamo gli errori di connessione
-     * @return void
+     * Crea una connessione PDO e la assegna alla proprietà $pdo
+     * Se la connessione fallisce, stampa un messaggio di errore e termina l'esecuzione
      */
-    private function getPdoConnection(){
-        try{
-          $this->pdo =  (new Database())->pdo;
-        }catch(PDOException $e){
-            echo "Errore server $e"; exit;
+    private function getPdoConnection() {
+        try {
+            // Crea una nuova istanza della classe Database e assegna il PDO
+            $this->pdo = (new Database())->pdo;
+        } catch (\PDOException $e) {
+            // Se c'è un errore di connessione, stampa il messaggio di errore e termina
+            echo "Errore di connessione al database: " . $e->getMessage(); 
+            exit;
         }
     }
 
     /**
-     * 
-     * Gestione delle richieste, il vero "main.php" per lo sviluppo ad oggetti
-     * @return void
+     * Avvia l'applicazione, risolvendo la richiesta e inviando la risposta
      */
-    public function run(){
-        // verifichiamo se la richiesta è presente nel file routes.php
-        try{
-            $this->router->resolve(); // risolviamo le richieste
-        }catch( NotFoundException $e ){
-            // se la richiesta non esiste all'intenro del software, l'utente verrà indirizzato alla pagina di error 404
-            $this->response->send404($e);
+    public function run() {
+        try {
+            // Risolve la richiesta, ovvero determina quale azione eseguire in base alla rotta
+            $this->router->resolve();
+        } catch(NotFoundException $e) {
+            // Se la rotta non viene trovata, imposta una risposta 404
+            $this->response->set404($e);            
         }
 
-        $this->response->send(); //inviamo la risposta al client
+        // Invia la risposta al client
+        $this->response->send();
     }
 }

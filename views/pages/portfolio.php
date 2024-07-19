@@ -1,1 +1,1 @@
-@include('components.portfolioitem')
+{{showportfolio}}

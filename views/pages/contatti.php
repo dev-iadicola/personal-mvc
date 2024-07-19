@@ -4,5 +4,5 @@ Pagina Contatti
     {{message}}
 </div>
 
-@include('components.form')
+{{form}}
 

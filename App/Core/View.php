@@ -1,146 +1,80 @@
 <?php
-
-/**
- * 
- * Questa classe mostra le cartelle della pagina 
- */
-
 namespace App\Core;
+use \App\Core\Mvc;
 
-use App\Core\Mvc;
-
-class View
-{
+class View {
 
     public string $layout = 'default';
-    
 
-    //ricevimo l'istanza MVC
-    public function __construct(public Mvc $mvc)
-    {
-    }
+    public function __construct(public Mvc $mvc) {}
 
-
-   
-    public function render($page, $values = [],)
-    {
-
+    // rimpiazziamo i placeholder nelle pagine php
+    public function render($page, $values = []) {
         $layoutValue = [
             'page' => $page,
-            'menu' => $this->mvc->config['menu'],
+            'menu' => $this->mvc->config['menu']
         ];
-
-        //ricerca della layouts e della page
+        //ricerca layouts e page
         $layoutContent = $this->getViewContent("layouts", $this->layout, $layoutValue);
-        $pageConntent = $this->getViewContent("pages", $page);
-
-        // sostituzione dinamica del file php dov'è presente '{{page}}'
-
-        $pageContent = $this->renderContent($pageConntent, $values);
-
-        // Converti gli include in pagine
-        $pageContent = $this->processIncludes($pageContent);
-
-        //rimpiazzamento placeholder all'interno delle pagine
-        $content = $this->renderContent($layoutContent, [
+        $pageContent = $this->getViewContent("pages",$page);
+        
+        //sostituzione dei placelholder {{page}} con un file.php
+        $pageContent = $this->renderContent($pageContent, $values);
+        return $this->renderContent($layoutContent, [
             'page' => $pageContent,
-            'footer' => "MVC page",
+            'footer' => "Applicazione web MVC con PHP"
         ]);
-
-        return $content;
     }
 
     /**
      * Summary of renderContent
-     * @param mixed $content //contenuto della pagina inserito all'interno di render
-     * @param array $values // valori da sostituire es: {{page}} => 'pagina con valori'
-     * @return array|string
+     * @param mixed $content // contenuto della pagina
+     * 
+     * @param mixed $values //valori da inserire
+     * @return array|string // ritorno di str_rpleace() per ricevere 
+     * il file con rimpiazzamento dei placeholder con il file o variabile inserita 
+     * nel controller come array/stringa inniettato nel controller interessato
      */
-    private function renderContent($content, $values)
-    {
+    private function renderContent($content, $values) {
         $chiavi = array_keys($values);
-        $chiavi = array_map(fn ($chiave) => "{{" . $chiave . "}}", $chiavi);
-        foreach ($values as $key => $value) {
-            if ($value instanceof Component) {
+        $chiavi = array_map(fn($chiave) => "{{".$chiave."}}", $chiavi);        
+        foreach($values as $key => $value) {            
+            if($value instanceof Component) {
                 $values[$key] = $this->renderComponent($value);
             }
         }
-
         $valori = array_values($values);
-
-        $valori = $this->clearValuesFromOrm($valori);
-
         return str_replace($chiavi, $valori, $content);
-    
     }
 
-    public function getOrm($valori){
-        $Orm = [] ;
-        foreach($valori as $key => $valore){
-            if(is_object($valore)){
-                $Orm[$key] = $valore;
-               unset($valori[$key]);
-                
-            }
-        }
-        return $Orm;
-    }
-
-    protected static function clearValuesFromOrm($valori){
-        $Orm = [] ;
-        foreach($valori as $key => $valore){
-            if(is_object($valore)){
-                $Orm[$key] = $valore;
-               unset($valori[$key]);
-                
-            }
-        }
-        return $valori;
-    }
-
-
-
-
-
-    protected function renderComponent($componente)
-    {
-        $nomeComponente = key($componente);
-        $componentContent = $this->getViewContent(
-            "components", $nomeComponente);
+    public function renderComponent($componente) {
+        $nomeComponente = $componente->getName();
+        $componentContent = $this->getViewContent("components", $nomeComponente);
         $content = '';
-        foreach ($componente[$nomeComponente] as $item) {
-            $content .= $this->renderContent(
-                $componentContent, $item);
+        foreach($componente->getItems() as $item) {
+            $content .= $this->renderContent($componentContent, $item);
         }
         return $content;
     }
 
     /**
-     * 
-     * 
      * @param mixed $folder // folder: inserisci il valore come stringa per trovare il percorso
      * @param mixed $page // pagina finale (variabile non obbligatoria) 
      * @return bool|string ritorna il percorso specifico del file
      * 
-     * 
      */
-    private function getViewContent(string $folder, string $item = '', array $values = [])
-    {
+
+    private function getViewContent($folder, $item, $values = []) {
         extract($values);
         $views = $this->mvc->config['folder']['views'];
-        // condizione nel caso $page non fosse presente
-        ob_start(); //tieni in memoria (buffering)
-        if (empty($item)) {
-            $path = "$views/$folder.php";
-        } else {
-            $path =  "$views/$folder/$item.php";
-        }
-        include $path;
+        ob_start();
+        include "$views/$folder/$item.php";
         return ob_get_clean();
     }
 
 
-    // trova gli @include
+    // FUNZIONE AL MOMENTO SOSPESA, SEPPUR FUNZIONANTE AL 100%
+    /* // trova gli @include
     // Verifica e gestisce gli '@include' nel contenuto della pagina
     private function processIncludes($content)
     {
@@ -163,7 +97,6 @@ class View
             }
         }
         return $content;
-    }
+    } */
 
-   
 }
