@@ -1,5 +1,6 @@
 <?php
 use App\Controllers\ContattiController;
+use App\Controllers\ErrorsController;
 use App\Controllers\HomeController;
 use App\Controllers\PortfolioController;
 
@@ -24,6 +25,7 @@ return [
         '/' => [HomeController::class,'index'], //array contenente [0]Controller e [1] Metodo del controller prescelto
         '/contatti' => [ContattiController::class,'index'],
         '/portfolio' => [PortfolioController::class, 'index'],
+        '/coming-soon' => [ErrorsController::class,'repair'],
     ],
     // rotte disponibili per rihiesta POST
     'post' =>[

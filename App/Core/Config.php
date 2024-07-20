@@ -27,9 +27,18 @@ class Config
      */
     public static function env($envFile)
     {
-        $envVars = file($envFile);
+    
+        $envVars = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($envVars as $envVar) {
-            putenv(trim($envVar));
+            $envVar = trim($envVar);
+            // Debug: Output linea corrente
+           // echo "Processing: '$envVar'\n"; // decommenta per il debug
+            // Ignora le righe che iniziano con # (commenti) o che non contengono un '='
+            if ($envVar === '' || $envVar[0] === '#' || strpos($envVar, '=') === false) {
+               // echo "Skipped: '$envVar'\n"; //decommenta per il debug
+                continue;
+            }
+            putenv($envVar);
         }
     }
 

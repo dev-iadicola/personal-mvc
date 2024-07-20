@@ -30,4 +30,17 @@ class Controller {
         $this->mvc->response->setContent($content);
     }
 
+
+    /**
+     * Modifica il Layout della pagina
+     */
+
+     protected function setLayout(string $layout){
+        if(str_contains($layout, '.php')){
+            $layout =  str_replace('.php','',$layout);
+        }
+       // echo $layout; exit;
+
+        $this->mvc->view->layout = $layout;
+     }
 }

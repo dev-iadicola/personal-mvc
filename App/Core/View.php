@@ -26,6 +26,8 @@ class View {
         ]);
     }
 
+    
+
     /**
      * Summary of renderContent
      * @param mixed $content // contenuto della pagina

@@ -14,6 +14,8 @@ class HomeController extends Controller {
 
     public function __construct(public Mvc $mvc) {
         parent::__construct($mvc);
+        
+     
     }
 
     public function index() {

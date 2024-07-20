@@ -25,7 +25,10 @@ class Router {
         $controller = $response[0];
         $action = $response[1];
         $instance = new $controller($this->mvc);
-        call_user_func_array([$instance, $action], []);
+
+       $this->mvc->middleware->execute(); // controllo middleware
+
+        call_user_func_array([$instance, $action], []); // trova il controller e action per ricevere una risposta dal controller
     }
 
 }

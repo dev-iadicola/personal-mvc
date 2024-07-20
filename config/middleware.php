@@ -3,7 +3,10 @@
  * File per l'autenticazione dell'utente
  * gestione tramite Array 
  */
+
+use App\Middleware\MaintenanceMiddleware;
+
 return [
-    '/' => ['Middleware1', 'Milldeware2'],
-    '/user'['Middleware3'],
+    '/' => [MaintenanceMiddleware::class],
+  
 ];
