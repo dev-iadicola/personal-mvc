@@ -25,7 +25,8 @@ class Controller {
      *  
      * per maggiori particolari,andare nel file View presente su /App/Core/View
      */
-    public function render($view, $values = []) {
+    public function render($view, $values = ['message' => '']) {
+        
         $content = $this->mvc->view->render($view, $values);
         $this->mvc->response->setContent($content);
     }
@@ -39,7 +40,7 @@ class Controller {
         if(str_contains($layout, '.php')){
             $layout =  str_replace('.php','',$layout);
         }
-       // echo $layout; exit;
+      
 
         $this->mvc->view->layout = $layout;
      }

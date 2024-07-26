@@ -3,17 +3,17 @@
 namespace App\Core;
 
 use \App\Core\View;
-use \App\Core\Database;
+use \App\Core\Connection\Database;
 use App\Core\Middleware;
 use \App\Core\Http\Router;
 use \App\Core\Http\Request;
 use \App\Core\Http\Response;
 use \App\Core\Exception\NotFoundException;
+use App\Core\ORM;
 
-class Mvc
-{
-    // Istanza statica dell'oggetto Mvc, utilizzata per accedere globalmente all'istanza corrente
+class Mvc{
     public static Mvc $mvc;
+
 
     // Oggetti per gestire la richiesta, la risposta, le rotte e le viste
     public Request $request;

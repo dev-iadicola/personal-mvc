@@ -27,4 +27,8 @@ class HomeController extends Controller {
         ]);
     }
 
+    public function cookie(){
+        $this->render('cookie-law',[]);
+    }
+
 }

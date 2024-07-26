@@ -1,3 +1,4 @@
+<section class="container">
 Pagina Contatti
 
 <div class="alert bg-success">
@@ -6,3 +7,4 @@ Pagina Contatti
 
 {{form}}
 
+</section>

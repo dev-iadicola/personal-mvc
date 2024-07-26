@@ -1,5 +1,6 @@
 <?php
 namespace App\Core;
+
 use \App\Core\Mvc;
 
 class View {
@@ -9,14 +10,21 @@ class View {
     public function __construct(public Mvc $mvc) {}
 
     // rimpiazziamo i placeholder nelle pagine php
-    public function render($page, $values = []) {
+    public function render($page, $values = ['message'=> '']) {
+        $page = str_replace('.','/',$page);
+
         $layoutValue = [
             'page' => $page,
-            'menu' => $this->mvc->config['menu']
+            'menu' => $this->mvc->config['menu'],
         ];
+   
         //ricerca layouts e page
         $layoutContent = $this->getViewContent("layouts", $this->layout, $layoutValue);
-        $pageContent = $this->getViewContent("pages",$page);
+        $pageContent = $this->getViewContent("pages",$page, $layoutValue);
+
+        // Ricambia Includes 
+         $pageContent = $this->processIncludes($pageContent);
+         $layoutContent = $this->processIncludes($layoutContent);
         
         //sostituzione dei placelholder {{page}} con un file.php
         $pageContent = $this->renderContent($pageContent, $values);
@@ -75,9 +83,17 @@ class View {
     }
 
 
-    // FUNZIONE AL MOMENTO SOSPESA, SEPPUR FUNZIONANTE AL 100%
-    /* // trova gli @include
-    // Verifica e gestisce gli '@include' nel contenuto della pagina
+    /**
+     * Summary of processIncludes
+     * 
+     * Questo metodo permette di sostituire gli elementi nelle pagine scelte inniettate nel metodo.
+     * Tutti gli elementi all'interno della pagina definiti @include('percorso.della.pagina') verranno sostituiti con
+     * l'altra pagina scelta all'intenro di @include
+     * 
+     * @param string $content può essere layout che page che si trovano in views/page e views/layout 
+     * @return string 
+     * 
+     */
     private function processIncludes($content)
     {
         // definisci il pattern dell'espressione regolare
@@ -99,6 +115,6 @@ class View {
             }
         }
         return $content;
-    } */
+    } 
 
 }

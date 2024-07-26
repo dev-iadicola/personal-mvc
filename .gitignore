@@ -1,2 +1,5 @@
 /vendor/
 .vscode/launch.json
+
+.env
+

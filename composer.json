@@ -1,6 +1,6 @@
 {
-    "name": "lui12/personal-mvc",
-    "description": "'personal-mvc'",
+    "name": "lui12/portoflio",
+    "description": "'portfolio'",
     "type": "project",
     "license": "MIT",
     "autoload": {
@@ -14,5 +14,7 @@
         }
     ],
     "minimum-stability": "beta",
-    "require": {}
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
 }

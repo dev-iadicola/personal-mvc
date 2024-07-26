@@ -8,5 +8,5 @@ return [
     '/' => 'Home',
     '/contatti' => 'Contatti',
     '/portfolio' => 'Portfolio',
-    '/user/login' => 'Login',
+    '/https://github.com/AndroLuix/' => 'GitHub'
 ];

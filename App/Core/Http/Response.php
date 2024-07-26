@@ -8,7 +8,7 @@ class Response {
     private int $statusCode = 200;
 
     public function __construct(
-        public View $view
+        public View $view 
     ) {}
 
     public function send() {
