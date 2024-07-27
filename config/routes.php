@@ -8,6 +8,7 @@ use App\Controllers\ErrorsController;
 use App\Controllers\HomeController;
 use App\Controllers\PortfolioController;
 use App\Controllers\LawController;
+use App\Controllers\ProgettiController;
 
 /**
  * Gestione delle routes riguardo le richiest http
@@ -33,7 +34,9 @@ return [
         '/privacy-policy' => [LawController::class,'policy'],
         '/contatti' => [ContattiController::class,'index'],
         '/portfolio' => [PortfolioController::class, 'index'],
+        '/progetti' => [ProgettiController::class,'index'],
         '/coming-soon' => [ErrorsController::class,'repair'],
+
 
 
         // Routes Auth

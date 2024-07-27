@@ -61,6 +61,8 @@ class ORM
      
         return $instance;
     }
+
+    
     public function whereNot($columnName, $parameter)
     {
         $columnName = self::removeSpecialChars($columnName);

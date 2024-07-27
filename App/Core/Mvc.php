@@ -2,14 +2,17 @@
 
 namespace App\Core;
 
+use App\Core\ORM;
 use \App\Core\View;
-use \App\Core\Connection\Database;
 use App\Core\Middleware;
 use \App\Core\Http\Router;
 use \App\Core\Http\Request;
+use App\Mail\Mailer;
 use \App\Core\Http\Response;
+use App\Core\Connection\SMTP;
+use \App\Core\Connection\Database;
 use \App\Core\Exception\NotFoundException;
-use App\Core\ORM;
+use PHPMailer\PHPMailer\Exception as ExceptionSMTP;
 
 class Mvc{
     public static Mvc $mvc;
@@ -21,6 +24,9 @@ class Mvc{
     public Router $router; // Gestione delle rotte
     public View $view; // Gestione delle viste
     public \PDO $pdo; // Connessione PDO al database
+
+    public SMTP $Smtp;
+    public Mailer $mailer;
 
     public Middleware  $middleware; //Gestione di Autenticazione utente
     /**
@@ -45,8 +51,13 @@ class Mvc{
         // Inizializza l'oggetto Router per gestire il routing delle richieste
         $this->router = new Router($this);
 
+       
+
         // Inizializza la connessione al database e imposta il PDO per l'ORM
         $this->getPdoConnection(); // Invochiamo la connessione
+        $this->getSMTPConnection();
+        $this->mailer = new Mailer($this->Smtp);
+
         Orm::setPDO($this->pdo);
 
         $this->middleware = new Middleware($this, $config['middleware']);
@@ -64,6 +75,15 @@ class Mvc{
         } catch (\PDOException $e) {
             // Se c'è un errore di connessione, stampa il messaggio di errore e termina
             echo "Errore di connessione al database: " . $e->getMessage();
+            exit;
+        }
+    }
+
+    private function getSMTPConnection(){
+        try{
+            $this->Smtp = new SMTP();
+        }catch(ExceptionSMTP $e){
+            echo "Errore di connessione al servizio di posta elettronica ". $e->getMessage();
             exit;
         }
     }

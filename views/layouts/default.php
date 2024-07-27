@@ -45,6 +45,7 @@
                     <li><a href="/" class="<?= isActive('home', $page) ?>">Home</a></li>
                     <li><a href="/contatti" class="<?= isActive('contatti', $page) ?>">Contatti</a></li>
                     <li><a href="/portfolio" class="<?= isActive('portfolio', $page) ?>">Portfolio</a></li>
+                    <li><a href="/progetti" class="<?= isActive('progetti', $page) ?>">Progetti</a></li>
                     <li><a target="_blank" href="https://github.com/AndroLuix/" class="<?= isActive('github', $page) ?>">GitHub <i style="color: white;" class="fa fa-github" aria-hidden="true"></i></a> </li>
                 </ul>
             </nav>

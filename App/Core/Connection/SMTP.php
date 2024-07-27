@@ -7,15 +7,10 @@ class SMTP {
     public PHPMailer $mail;
 
     public function __construct(){
-        define('HOST', getenv(''));
-        define('USER', getenv('DB_USER'));
-        define('PSW', getenv('DB_PSW'));
-        define('NAME', getenv('DB_NAME'));
-        define('PORT', getenv('DB_PORT') ?: 3306); // Usa la porta 3306 come predefinita se DB_PORT non è definito
-
+     
         $this->mail = new PHPMailer(true);
 
-        $this->mail->SMTPDebug  = 1; 
+        //$this->mail->SMTPDebug  = 1; 
         $this->mail->isSMTP();
 
         $this->mail->Host         = getenv('SMTP_HOST');
@@ -28,5 +23,7 @@ class SMTP {
 
     }
 
-  
+    public function getMailer(): PHPMailer {
+        return $this->mail;
+    }
 }
