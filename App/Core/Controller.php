@@ -31,6 +31,11 @@ class Controller {
         $this->mvc->response->setContent($content);
     }
 
+    public function redirectBack(){
+        $back = $this->mvc->request->redirectBack();
+        $this->mvc->response->redirect($back);
+    }
+
 
     /**
      * Modifica il Layout della pagina
@@ -44,4 +49,6 @@ class Controller {
 
         $this->mvc->view->layout = $layout;
      }
+
+     
 }

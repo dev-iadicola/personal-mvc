@@ -1,10 +1,11 @@
 <?php
 namespace App\Controllers\Admin;
 use App\Core\Controller;
+use App\Core\Http\Request;
 use App\Core\Mvc;
 use App\Core\Services\AuthService;
 
-class DashBoardController extends Controller{
+class PortfolioController extends Controller{
 
     public function __construct(public Mvc $mvc) {
         parent::__construct($mvc);
@@ -14,13 +15,12 @@ class DashBoardController extends Controller{
     }
 
     public function index(){
-        $this->render('admin.dashboard');
+        $this->render('admin.portfolio');
     }
 
-    public function logout(){
-        $this->setLayout('default');
-        AuthService::logout();
-        return $this->mvc->response->redirect('/login');
-    }
+  public function create(Request $request){
+    var_dump($request);
+
+  }
 
 }

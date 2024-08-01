@@ -13,7 +13,6 @@ use App\Core\Connection\SMTP;
 use \App\Core\Connection\Database;
 use \App\Core\Exception\NotFoundException;
 use PHPMailer\PHPMailer\Exception as ExceptionSMTP;
-
 class Mvc{
     public static Mvc $mvc;
 
@@ -56,7 +55,7 @@ class Mvc{
         // Inizializza la connessione al database e imposta il PDO per l'ORM
         $this->getPdoConnection(); // Invochiamo la connessione
         $this->getSMTPConnection();
-        $this->mailer = new Mailer($this->Smtp);
+        $this->mailer = new Mailer($this);
 
         Orm::setPDO($this->pdo);
 

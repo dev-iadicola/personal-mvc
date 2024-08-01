@@ -22,7 +22,7 @@
 
 <body>
     <main class="d-flex flex-row">
-        @include('components.admin.menu')
+        @include('components.admin.sidebar')
         {{page}}
     </main>
     

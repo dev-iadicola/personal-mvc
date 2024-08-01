@@ -95,7 +95,17 @@ class ORM
             $st->bindValue($param, $value);
         }
         $st->execute();
-        return $st->fetch($fetchType);
+        $result = $st->fetch($fetchType);
+    
+        if ($result) {
+            $instance = new static(self::$pdo);
+            foreach ($result as $key => $value) {
+                $instance->$key = $value;
+            }
+            return $instance;
+        }
+    
+        return null;
     }
    
     // cerca tramite id
@@ -108,6 +118,37 @@ class ORM
         $st->bindParam(':id', $id, PDO::PARAM_INT);
         $st->execute();
         return $st->fetch($fetchType);
+    }
+
+    public function update(array $values){
+        $fillable = static::$fillable;
+        $table = static::$table;
+    
+        // Filtra i valori in base a $fillable
+        if (!empty($fillable)) {
+            $values = array_filter($values, function($key) use ($fillable) {
+                return in_array($key, $fillable);
+            }, ARRAY_FILTER_USE_KEY);
+        }
+    
+        // Costruisci la query di aggiornamento
+        $setClause = implode(', ', array_map(fn ($key) => "$key = :$key", array_keys($values)));
+        $query = "UPDATE $table SET $setClause {$this->whereClause}";
+        
+        $stmt = self::$pdo->prepare($query);
+    
+        // Associa i valori per l'aggiornamento
+        foreach ($values as $field => $value) {
+            $stmt->bindValue(":$field", self::removeSpecialChars($value));
+        }
+    
+        // Associa i valori per la clausola WHERE
+        foreach ($this->bindings as $param => $value) {
+            $stmt->bindValue($param, $value);
+        }
+    
+        return $stmt->execute();
+
     }
 
 
@@ -133,8 +174,6 @@ class ORM
     public static function save(array $values)
     {
         $fillable = static::$fillable;
-
-        
 
          // Filtra valori di values
         if(!empty($fillable)){

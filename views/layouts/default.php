@@ -32,7 +32,7 @@
         </div>
         <div id="menu" class="chiuso">
             <?php
-            function isActive($menuItem, $currentPage)
+            function isActivePage($menuItem, $currentPage)
             {
                 return strtolower($menuItem) === strtolower($currentPage) ? 'active' : '';
             }
@@ -42,11 +42,11 @@
             ?>
             <nav>
                 <ul>
-                    <li><a href="/" class="<?= isActive('home', $page) ?>">Home</a></li>
-                    <li><a href="/contatti" class="<?= isActive('contatti', $page) ?>">Contatti</a></li>
-                    <li><a href="/portfolio" class="<?= isActive('portfolio', $page) ?>">Portfolio</a></li>
-                    <li><a href="/progetti" class="<?= isActive('progetti', $page) ?>">Progetti</a></li>
-                    <li><a target="_blank" href="https://github.com/AndroLuix/" class="<?= isActive('github', $page) ?>">GitHub <i style="color: white;" class="fa fa-github" aria-hidden="true"></i></a> </li>
+                    <li><a href="/" class="<?= isActivePage('home', $page) ?>">Home</a></li>
+                    <li><a href="/contatti" class="<?= isActivePage('contatti', $page) ?>">Contatti</a></li>
+                    <li><a href="/portfolio" class="<?= isActivePage('portfolio', $page) ?>">Portfolio</a></li>
+                    <li><a href="/progetti" class="<?= isActivePage('progetti', $page) ?>">Progetti</a></li>
+                    <li><a target="_blank" href="https://github.com/AndroLuix/" class="<?= isActivePage('github', $page) ?>">GitHub <i style="color: white;" class="fa fa-github" aria-hidden="true"></i></a> </li>
                 </ul>
             </nav>
             <!-- Altri contenuti della pagina -->

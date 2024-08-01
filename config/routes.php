@@ -1,61 +1,40 @@
 <?php
 
-use App\Controllers\Admin\DashBoardController;
-use App\Controllers\Auth\AuthController;
-use App\Controllers\Auth\TokenController;
-use App\Controllers\ContattiController;
-use App\Controllers\ErrorsController;
-use App\Controllers\HomeController;
-use App\Controllers\PortfolioController;
+use App\Core\Services\Route;
 use App\Controllers\LawController;
+use App\Controllers\HomeController;
+use App\Controllers\ErrorsController;
+use App\Controllers\ContattiController;
 use App\Controllers\ProgettiController;
-
-/**
- * Gestione delle routes riguardo le richiest http
- * 
- * il primo elemento dell'array è la tiplogia di richiesta
- * il secondo array associativo conterrà due valori:
- * 1. Il controller da utilizzare
- * 2. l'action del controller selezionato prima
- * 
- * il metodo di un controller per le rotte viene tecnicamente definitp 'action'
- * 
- * 
- */
+use App\Controllers\Auth\AuthController;
+use App\Controllers\PortfolioController;
+use App\Controllers\Auth\TokenController;
+use App\Controllers\Admin\DashBoardController;
+use App\Controllers\Admin\PortfolioController as AdminPortfolio;
 
 
-return [
+// Registra le rotte GET
+Route::get('/', HomeController::class, 'index');
+Route::get('/cookie', LawController::class, 'cookie');
+Route::get('/privacy-policy', LawController::class, 'policy');
+Route::get('/contatti', ContattiController::class, 'index');
+Route::get('/portfolio', PortfolioController::class, 'index');
+Route::get('/progetti', ProgettiController::class, 'index');
+Route::get('/coming-soon', ErrorsController::class, 'repair');
+Route::get('/login', AuthController::class, 'index');
+Route::get('/forgot', AuthController::class, 'forgotPassword');
+Route::get('/sign-up', AuthController::class, 'signUp');
+Route::get('/validate-pin/{token}', TokenController::class, 'pagePin');
+Route::get('/admin/dashboard', DashBoardController::class, 'index');
+Route::get('/admin/logout', DashBoardController::class, 'logout');
+Route::get('/admin/portfolio', AdminPortfolio::class, 'index');
 
-    //rotte disponibili per richiesta GET
-    'get' => [
-        // Routes
-        '/' => [HomeController::class,'index'], //array contenente [0]Controller e [1] Metodo del controller prescelto
-        '/cookie' => [LawController::class,'cookie'],
-        '/privacy-policy' => [LawController::class,'policy'],
-        '/contatti' => [ContattiController::class,'index'],
-        '/portfolio' => [PortfolioController::class, 'index'],
-        '/progetti' => [ProgettiController::class,'index'],
-        '/coming-soon' => [ErrorsController::class,'repair'],
+// Registra le rotte POST
+Route::post('/contatti', ContattiController::class, 'sendForm');
+Route::post('/login', AuthController::class, 'login');
+Route::post('/forgot', TokenController::class, 'forgotPasswordToken');
+Route::post('/sign-up', AuthController::class, 'registration');
+Route::post('/token/change-password', TokenController::class, 'validatePin');
 
-
-
-        // Routes Auth
-        '/login' => [AuthController::class,'index'],
-        '/forgot' => [AuthController::class,'forgotPassword'],
-        '/sign-up' => [AuthController::class,'signUp'],
-
-        // Routes Admin
-        '/admin/dashboard'=>[DashBoardController::class,'index'],
-
-    ],
-    // rotte disponibili per rihiesta POST
-    'post' =>[
-        '/contatti' => [ContattiController::class,'sendForm'],
-        '/login' => [AuthController::class,'login'],
-        '/forgot' => [TokenController::class,'forgotPasswordToken'], // 
-        '/sign-up' => [AuthController::class,'registration'],
-
-    ]
-
-
-];
+// Restituisce l'array delle rotte
+return Route::all();

@@ -7,6 +7,7 @@ use App\Core\Validator;
 use App\Model\User;
 use App\Core\Controller;
 use App\Core\Http\Response;
+use App\Core\Services\AuthService;
 
 class AuthController extends Controller
 {
@@ -31,14 +32,23 @@ class AuthController extends Controller
 
         $data = $this->post;
 
+        // verifica esistenza user
         $user = User::where('email', $data['email'])->first();
 
-        $confirmPassword = password_verify($data['password'], $user['password']);
+        if(empty($user)){
+            return $this->render('Auth.login', ['message' => 'Credenziali non valide!']);
+        }
+
+        
+
+        // conferma
+        $confirmPassword = password_verify($data['password'], $user->password);
 
         if ($confirmPassword === false) {
             return $this->render('Auth.login', ['message' => 'Credenziali non valide!']);
         }
 
+        AuthService::login($user->email);
         return $this->mvc->response->redirect('admin/dashboard');
     }
 
@@ -50,7 +60,6 @@ class AuthController extends Controller
     public function signUp()
     {
         $user = User::findAll();
-        //  var_dump($user); exit;
         if (count($user) == 0) {
             $this->render('Auth.sign-up', ['message' => '']); // fa caldo
         } else {

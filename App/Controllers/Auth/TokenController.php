@@ -7,19 +7,29 @@ use App\Core\Mvc;
 use App\Model\User;
 use App\Core\Validator;
 use App\Core\Controller;
+use App\Core\Http\Request;
+use App\Core\Http\Response;
+use App\Model\Token;
 
 class TokenController extends Controller
 {
 
+    public array $post;
+
+
     public function __construct(public Mvc $mvc)
     {
         parent::__construct($mvc);
+        parent::setLayout('default');
+        $this->post =  $this->mvc->request->getPost();
     }
+
+   
 
     public function forgotPasswordToken()
     {
-
-        $post = $this->mvc->request->getPost();
+        $post = $this->post;
+       
 
         // Validazione dei campi input 
 
@@ -27,24 +37,32 @@ class TokenController extends Controller
             [$post['email']  => 'email'],
             ['email' => 'Formato email Non valido!']
         );
-
         if ($validator->fails() === true) {
             return $this->render('Auth.forgot', ['message' => $validator->errors()]);
         }
 
-        // Validazione Presenza Utente nel DB
 
+        // Validazione Presenza Utente nel DB
         $user = User::where('email', $post['email'])->first();
         if (empty($user)) {
             return $this->render('Auth.forgot', ['message' => 'Email non Esistente']);
         }
+        
+        // Creazione Token
 
-        // Creazione del corpo della mail
+       $tokenModel =  Token::generateToken($post['email']);
 
+      
+
+
+      
         $mailer = $this->mvc->mailer;
+        $mailer->setContent($tokenModel);
         $to = $post['email'];
         $subject = 'Test Email';
-        $body = '<p>Clicca qui per aprire modificare la mail</p>'; //attendere per l'algoritmo per poter prendere il file da inviare anzichè un HTML
+        $body = 'token-mail' ;
+        
+       //attendere per l'algoritmo per poter prendere il file da inviare anzichè un HTML
 
         // Validazione Mail
 
@@ -54,6 +72,59 @@ class TokenController extends Controller
 
         // Reindirizzamento di successo 
 
-        return $this->render('Auth.login', ['message' => 'Mail inviata con successo!']);
+        return $this->render('Auth.forgot', ['message' => 'Mail inviata con successo! Apri il link']);
     }
+
+    /**
+     * 
+     * 
+     * @return void
+     * 
+     * validazione token gestione richiesta POST e reindirizzamento per modifica password
+     */
+
+     public function pagePin(Request $request, $token){
+
+        $message = '';
+        
+        if(Token::isBad($token)){
+            return $this->render('Auth.forgot',['message'=>'Non hai le credenziali per accedere']);
+        }
+       
+       return $this->render('Auth.validate-token', compact('token','message'));
+
+     }
+
+     public function validatePin(Request $request){
+        $data = $request->getPost();
+
+        // var_dump($data); exit;
+
+        // Validazione della password
+        $validatorPassword = Validator::confirmedPassword( $data);
+
+        if(!$validatorPassword){
+            $this->render('Auth.validate-token', ['message'=>'Le password non sono uguali']);
+        }
+
+
+
+        //Validazione del token
+       $token =  Token::where('token', $data['token'])->first();
+
+
+       
+       if(empty($token)){
+       return  $this->render('Auth.forgot',['message'=> 'La richiesta non è stata accettata!']);
+       }
+      
+
+       $user = User::changePassword(password: $data['password'], email: $token->email);
+
+       return $this->render('Auth.login',['message'=>'Accedi con le nuove credenziali']);
+       
+      
+        
+     }
+ 
 }

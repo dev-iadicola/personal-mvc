@@ -1,34 +1,71 @@
 <?php
 namespace App\Core\Http;
+use App\Controllers\Admin\DashBoardController;
 use \App\Core\Http\Request;
 use \App\Core\Mvc;
 use \App\Core\Exception\NotFoundException;
 
+
 class Router {
 
-    public function __construct(public Mvc $mvc) {}
+    public Request $request;
+
+   
+    public function __construct(public Mvc $mvc) {
+        $this->request = $this->mvc->request; // Inizializza la proprietà request
+    }
+
+   
+
+    
 
     public function getRoute() {
         $method = $this->mvc->request->getRequestMethod();
         $path = $this->mvc->request->getRequestPath();
         $routes = $this->mvc->config['routes'];
-        return $routes[$method][$path] ?? false;
+        
+        if (isset($routes[$method][$path])) {
+            return [$routes[$method][$path], []];
+        }
+
+        foreach ($routes[$method] as $route => $response) {
+            $routeRegex = preg_replace('/\{[^\}]+\}/', '([^/]+)', $route);
+            if (preg_match('#^' . $routeRegex . '$#', $path, $matches)) {
+                array_shift($matches);
+                return [$response, $matches];
+            }
+        }
+
+        return false;
     }
 
     public function resolve() {
-        $response = $this->getRoute();
-        if(!$response) throw new NotFoundException();
-        $this->dispatch($response);
+        $route = $this->getRoute();
+        if (!$route) throw new NotFoundException();
+        $this->dispatch($route);
     }
 
-    public function dispatch($response) {
+    public function dispatch($route) {
+        list($response, $params) = $route;
         $controller = $response[0];
-        $action = $response[1];
+        $method = $response[1];
+
+        if (!class_exists($controller)) {
+            throw new \Exception("Controller class $controller not found");
+        }
+
+        $request = $this->request;
+
+        // var_dump(['controller' => $controller], ['method' => $method], ['req' =>$request],['param' =>  $params] );
+
         $instance = new $controller($this->mvc);
 
-       $this->mvc->middleware->execute(); // controllo middleware
+        if (!method_exists($instance, $method)) {
+            throw new \Exception("Method $method not found in controller $controller");
+        }
 
-        call_user_func_array([$instance, $action], []); // trova il controller e action per ricevere una risposta dal controller
+        $this->mvc->middleware->execute(); // controllo middleware
+
+        call_user_func_array([$instance, $method], array_merge([$request], $params)); // passa i parametri dinamici
     }
-
 }
