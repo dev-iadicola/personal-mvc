@@ -22,7 +22,7 @@ class Mailer
         string $to,
         string $subject,
         string $body,
-        string $from = 'luigiiadicola@portfolio.com',
+        string $from = 'luigi.iadicola30@demomailtrap.com',
         string $fromName = 'Pesronal Portoflio - MVC'
     ) {
         $mail = $this->mvc->Smtp->getMailer();
@@ -37,6 +37,7 @@ class Mailer
             $mail->setFrom($from, $fromName);
             $mail->addAddress($to);
             $mail->isHTML(true);
+            $mail->isSMTP();
             $mail->Subject = $subject;
             $mail->Body = $this->getMailViews($body, $content); // Usa il contenuto passato come argomento
 

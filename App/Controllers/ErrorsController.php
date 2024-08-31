@@ -14,7 +14,7 @@ class ErrorsController extends Controller{
     
     public function repair() {
         if(getenv('MAINTENANCE') === 'true'){
-            $this->render('coming-soon',[]);
+            $this->render('coming-soon');
             
         }else{
             $this->mvc->response->redirect('/');

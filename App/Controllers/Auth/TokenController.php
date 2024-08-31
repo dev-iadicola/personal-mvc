@@ -38,14 +38,17 @@ class TokenController extends Controller
             ['email' => 'Formato email Non valido!']
         );
         if ($validator->fails() === true) {
-            return $this->render('Auth.forgot', ['message' => $validator->errors()]);
+            $this->withError($validator->errors());
+            return $this->render('Auth.forgot');
         }
 
 
         // Validazione Presenza Utente nel DB
         $user = User::where('email', $post['email'])->first();
         if (empty($user)) {
-            return $this->render('Auth.forgot', ['message' => 'Email non Esistente']);
+            $this->withError('Errore, utente non presente');
+
+            return $this->render('Auth.forgot');
         }
         
         // Creazione Token
@@ -59,7 +62,7 @@ class TokenController extends Controller
         $mailer = $this->mvc->mailer;
         $mailer->setContent($tokenModel);
         $to = $post['email'];
-        $subject = 'Test Email';
+        $subject = 'Richiesta di reset Password';
         $body = 'token-mail' ;
         
        //attendere per l'algoritmo per poter prendere il file da inviare anzichè un HTML
@@ -67,11 +70,13 @@ class TokenController extends Controller
         // Validazione Mail
 
         if (!$mailer->sendEmail($to, $subject, $body)) {
+            $this->withError('Errore, la mail non è stata inviata');
             return $this->render('Auth.forgot', ['message' => 'ERRORE: La mail non è stata inviata']);
         }
 
         // Reindirizzamento di successo 
 
+        $this->withSuccess('Mail inviata!');
         return $this->render('Auth.forgot', ['message' => 'Mail inviata con successo! Apri il link']);
     }
 
@@ -104,7 +109,8 @@ class TokenController extends Controller
         $validatorPassword = Validator::confirmedPassword( $data);
 
         if(!$validatorPassword){
-            $this->render('Auth.validate-token', ['message'=>'Le password non sono uguali']);
+            $this->withError('Le password devono corrispondere');
+            $this->redirectBack();
         }
 
 
@@ -120,7 +126,19 @@ class TokenController extends Controller
       
 
        $user = User::changePassword(password: $data['password'], email: $token->email);
+       if(!empty($user)){
+        $mailer = $this->mvc->mailer;
+        $mailer->setContent($user);
+        $to = $user->email;
+        $subject = 'Password Cambiata con Successo';
+        $body = 'password-changed' ;
+        
+     
 
+        $mailer->sendEmail($to, $subject, $body);
+       }
+
+       $this->withSuccess('Accedi con le nuove credenziali!');
        return $this->render('Auth.login',['message'=>'Accedi con le nuove credenziali']);
        
       

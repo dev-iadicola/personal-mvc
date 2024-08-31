@@ -56,4 +56,35 @@ class Config
         }
         return $conf;
     }
+
+
+
+    public static function updateEnv($envFile, $key, $value)
+    {
+        $envVars = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        $newEnvVars = [];
+        $found = false;
+
+        foreach ($envVars as $envVar) {
+            $envVar = trim($envVar);
+            if ($envVar === '' || $envVar[0] === '#' || strpos($envVar, '=') === false) {
+                $newEnvVars[] = $envVar;
+                continue;
+            }
+
+            list($currentKey, $currentValue) = explode('=', $envVar, 2);
+            if ($currentKey === $key) {
+                $newEnvVars[] = $key . '=' . $value;
+                $found = true;
+            } else {
+                $newEnvVars[] = $envVar;
+            }
+        }
+
+        if (!$found) {
+            $newEnvVars[] = $key . '=' . $value;
+        }
+
+        file_put_contents($envFile, implode(PHP_EOL, $newEnvVars));
+    }
 }

@@ -7,7 +7,7 @@ use App\Core\ORM;
 
 class User extends ORM
 {
-    static string $table = 'users';
+    public static string $table = 'users';
 
     static array $fillable = [
         'email', 'password','token','indirizzo', 'last_log'
@@ -23,6 +23,7 @@ class User extends ORM
 
         $user->update(['password' => $password]);
 
+    
         return $user;
     }
 

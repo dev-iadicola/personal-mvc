@@ -7,8 +7,14 @@
 $root = $_SERVER['DOCUMENT_ROOT'];
 
 return [
+   
     'root' => $root,
     'views' => $root.'/views',
     'mails'=> $root.'/mails',
+    'uploads' =>[
+        'base'=> $root.'/uploads/',
+        'image' => $root.'/uploads/images/',
+    ] ,
+    
     
 ];

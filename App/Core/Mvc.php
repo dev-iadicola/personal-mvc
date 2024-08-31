@@ -4,62 +4,71 @@ namespace App\Core;
 
 use App\Core\ORM;
 use \App\Core\View;
+use App\Mail\Mailer;
 use App\Core\Middleware;
+use App\Core\UploadFile;
 use \App\Core\Http\Router;
 use \App\Core\Http\Request;
-use App\Mail\Mailer;
 use \App\Core\Http\Response;
 use App\Core\Connection\SMTP;
 use \App\Core\Connection\Database;
+use App\Core\Services\SessionService;
 use \App\Core\Exception\NotFoundException;
 use PHPMailer\PHPMailer\Exception as ExceptionSMTP;
+
 class Mvc{
     public static Mvc $mvc;
 
 
-    // Oggetti per gestire la richiesta, la risposta, le rotte e le viste
     public Request $request;
-    public Response $response; // Gestione della risposta al client
-    public Router $router; // Gestione delle rotte
-    public View $view; // Gestione delle viste
-    public \PDO $pdo; // Connessione PDO al database
+    public Response $response; 
+        public Router $router; 
+    public View $view; 
+
+    public UploadFile $uploadFile;
+    public \PDO $pdo; 
 
     public SMTP $Smtp;
     public Mailer $mailer;
 
-    public Middleware  $middleware; //Gestione di Autenticazione utente
+    public Middleware  $middleware; 
+
+
+    public SessionService $sessionService;
     /**
      * Costruttore della classe Mvc
      *
      * @param array $config Configurazione per l'applicazione (es. impostazioni delle routes, view, ecc.)
      */
     public function __construct(public array $config)
+
+
     {
-        // Imposta l'istanza statica dell'oggetto Mvc
         self::$mvc = $this;
 
-        // inizializza l'oggetto Request per gestire le richieste HTTP
+
         $this->request = new Request();
 
-        // Inizializza l'oggetto View per gestire le viste
         $this->view = new View($this);
 
-        // inizializza l'oggetto Response per gestire la risposta HTTP
+        $this->uploadFile = new UploadFile($this);
+
+
         $this->response = new Response($this->view);
 
-        // Inizializza l'oggetto Router per gestire il routing delle richieste
         $this->router = new Router($this);
 
        
 
-        // Inizializza la connessione al database e imposta il PDO per l'ORM
-        $this->getPdoConnection(); // Invochiamo la connessione
+        $this->getPdoConnection(); 
         $this->getSMTPConnection();
         $this->mailer = new Mailer($this);
 
         Orm::setPDO($this->pdo);
 
         $this->middleware = new Middleware($this, $config['middleware']);
+
+        $this->sessionService = new SessionService();
     }
 
     /**
@@ -82,25 +91,25 @@ class Mvc{
         try{
             $this->Smtp = new SMTP();
         }catch(ExceptionSMTP $e){
-            echo "Errore di connessione al servizio di posta elettronica ". $e->getMessage();
+            echo "Error connecting to the e-mail service". $e->getMessage();
             exit;
         }
     }
 
     /**
-     * Avvia l'applicazione, risolvendo la richiesta e inviando la risposta
+     * Launch the application, resolving the request and sending the response
      */
     public function run()
     {
         try {
-            // Risolve la richiesta, ovvero determina quale azione eseguire in base alla rotta
+            // Resolves the request, i.e. determines what action to take based on the route
             $this->router->resolve();
         } catch (NotFoundException $e) {
-            // Se la rotta non viene trovata, imposta una risposta 404
+            // If the route is not found, set a 404 response
             $this->response->set404($e);
         }
 
-        // Invia la risposta al client
+        // send response 
         $this->response->send();
     }
 }

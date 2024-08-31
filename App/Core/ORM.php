@@ -2,221 +2,428 @@
 
 namespace App\Core;
 
-/**
- * Un ORM (acronimo di Object-Relational Mapping) 
- * è uno strumento di sviluppo software che agisce 
- * come intermediario tra un 
- * database relazionale e un linguaggio di 
- * programmazione orientato agli oggetti.
- * 
- * Sommario della classe ORM
- * Questa classe deve essere estesa dai futuri ORM creati dai developers.
- * Lo scopo è quello di semplificare lo sviluppo tramite il metodo ORM
- * 
- * 
- * 
- * 
- */
-
 use PDO;
+
 /**
- * Summary of ORM
- * 
- * Classe base per la gestione dei Model
+ * Classe base per la gestione dei Model.
  */
 class ORM
 {
+    protected static ?PDO $pdo = null; // Connessione PDO
+    protected static string $table = ''; // Nome della tabella
+    protected static array $fillable = []; // Campi riempibili
+    protected  $selectValues = '*';
 
-  
-    protected static ?PDO $pdo = null; // connessione PDO
+    protected string $whereClause = ''; // Clausola WHERE
+    protected array $bindings = []; // Parametri di binding
+    protected string $orderByClause = ''; // Clausola ORDER BY
 
-    protected static string  $table = ''; // nome defaul vuoto
-    protected static array $fillable = [];
-    protected string $whereClause = '';
-    protected string $whereNotClause = '';
-    protected array $bindings = [];
 
- 
+    public string $groupByClause = '';
 
-    public function __construct( PDO $pdo)
+    public  $id = '';
+
+    public function __construct(PDO $pdo)
     {
         self::setPDO($pdo);
     }
 
-    
     public static function setPDO(PDO $pdo)
     {
         self::$pdo = $pdo;
     }
 
-    
-    // Cerca per parametro inserito
-    public static function where($columnName, $parameter) {
-        $columnName = ORM::removeSpecialChars($columnName);
-        $parameter = ORM::removeSpecialChars($parameter);
-
-        $instance = new static(self::$pdo);
-        $instance->whereClause = "WHERE $columnName = :parameter";
-        $instance->bindings[':parameter'] = $parameter;
-     
-        return $instance;
+    public static function setTable(string $table)
+    {
+        self::$table = $table;
     }
 
-    
-    public function whereNot($columnName, $parameter)
+    public static function where(string $columnName, $parameter): self
     {
         $columnName = self::removeSpecialChars($columnName);
         $parameter = self::removeSpecialChars($parameter);
 
-        $this->whereClause = " WHERE NOT $columnName = :parameter";
-        $this->bindings[':parameter'] = $parameter;
+        $instance = new static(self::$pdo);
+        $instance->whereClause = "WHERE $columnName = :parameter";
+        $instance->bindings[':parameter'] = $parameter;
+
+        return $instance;
+    }
+
+    public static function whereNot(string $columnName, $parameter): self
+    {
+        $columnName = self::removeSpecialChars($columnName);
+        $parameter = self::removeSpecialChars($parameter);
+
+        $instance = new static(self::$pdo);
+        $instance->whereClause = "WHERE NOT $columnName = :parameter";
+        $instance->bindings[':parameter'] = $parameter;
+
+        return $instance;
+    }
+    public function select($value): self
+    {
+        $sanitizedValue = self::removeSpecialChars($value);
+        $instance = new static(self::$pdo);
+        $instance->selectValues = $sanitizedValue;
+        return $instance;
+    }
+
+
+    public static function orderBy(string $value): self
+    {
+        $sanitizedValue = self::removeSpecialChars($value);
+
+        $instance = new static(self::$pdo);
+        $instance->orderByClause = "ORDER BY $sanitizedValue";
+
+        return $instance;
+    }
+
+    public  function groupBy(string $param)
+    {
+        $sanitizeVal = self::removeSpecialChars($param);
+
+        $this->groupByClause = " GROUP BY $sanitizeVal ";
 
         return $this;
     }
 
-    public function get($fetchType = PDO::FETCH_ASSOC){
-        $query = "SELECT * FORM {$this->table} {$this->whereClause}";
-        $st = $this->pdo->prepare($query);
+    public static function query(string $query, array $params = [], int $fetchType = PDO::FETCH_ASSOC): array
+    {
+        $stmt = self::$pdo->prepare($query);
 
-        foreach($this->bindings as $param => $value){
-            $st->bindValue($param,$value);
+        foreach ($params as $param => $value) {
+            $stmt->bindValue($param, $value);
         }
 
-        return $st->fetchAll($fetchType);
+        $stmt->execute();
 
+        $data = $stmt->fetchAll($fetchType);
+        return self::getIstance($data);
     }
-    
-
-    public function first($fetchType = PDO::FETCH_ASSOC) {
+    public function get(int $fetchType = PDO::FETCH_ASSOC): array
+    {
         $table = static::$table;
-        $query = "SELECT * FROM $table {$this->whereClause} LIMIT 1";
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
+        }
+
+
+
+        $query = "SELECT " .  $this->selectValues . " FROM " . $table . " " . $this->whereClause . " " .  $this->groupByClause . " " . $this->orderByClause;
         $st = self::$pdo->prepare($query);
+
         foreach ($this->bindings as $param => $value) {
             $st->bindValue($param, $value);
         }
+
         $st->execute();
-        $result = $st->fetch($fetchType);
-    
-        if ($result) {
+        $data = $st->fetchAll($fetchType);
+
+
+        return self::getIstance(data: $data);
+    }
+
+
+
+
+
+
+    public function first(int $fetchType = PDO::FETCH_ASSOC)
+    {
+        $table = static::$table;
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
+        }
+
+        $query = "SELECT * FROM " . $table . " " . $this->whereClause . " " . $this->orderByClause  . " LIMIT 1";
+        $st = self::$pdo->prepare($query);
+
+        foreach ($this->bindings as $param => $value) {
+            $st->bindValue($param, $value);
+        }
+
+        $st->execute();
+        $data = $st->fetch($fetchType);
+
+        return self::getOneIstance(data: $data);
+    }
+
+    private static function getOneIstance($data)
+    {
+        if ($data) {
+            // Restituisci un'istanza della classe corrente
             $instance = new static(self::$pdo);
-            foreach ($result as $key => $value) {
+            foreach ($data as $key => $value) {
                 $instance->$key = $value;
             }
             return $instance;
         }
-    
+
         return null;
     }
-   
-    // cerca tramite id
-    public static function find($id, $fetchType = PDO::FETCH_ASSOC)
+    private static function getIstance($data)
     {
-        $id = self::removeSpecialChars($id);
-
-        $table = static::$table;
-        $st = self::$pdo->prepare("SELECT * FROM $table WHERE id=:id");
-        $st->bindParam(':id', $id, PDO::PARAM_INT);
-        $st->execute();
-        return $st->fetch($fetchType);
+        $results = [];
+        foreach ($data as $row) {
+            $instance = new static(self::$pdo);
+            foreach ($row as $key => $value) {
+                $instance->$key = $value;
+            }
+            $results[] = $instance;
+        }
+        return $results;
     }
 
-    public function update(array $values){
-        $fillable = static::$fillable;
+    public static function findAll(int $fetchType = PDO::FETCH_ASSOC): array
+    {
         $table = static::$table;
-    
-        // Filtra i valori in base a $fillable
-        if (!empty($fillable)) {
-            $values = array_filter($values, function($key) use ($fillable) {
-                return in_array($key, $fillable);
-            }, ARRAY_FILTER_USE_KEY);
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
         }
-    
-        // Costruisci la query di aggiornamento
-        $setClause = implode(', ', array_map(fn ($key) => "$key = :$key", array_keys($values)));
-        $query = "UPDATE $table SET $setClause {$this->whereClause}";
-        
+
+        $query = "SELECT * FROM " . $table;
+        $st = self::$pdo->prepare($query);
+        $st->execute();
+        $data = $st->fetchAll($fetchType);
+
+
+
+        return self::getIstance(data: $data);
+    }
+
+
+    public  function setId($id)
+    {
+        $this->$id = $id;
+    }
+
+
+
+    public static function find($id, int $fetchType = PDO::FETCH_ASSOC)
+    {
+        $table = static::$table;
+        $instance = new static(self::$pdo);
+        $instance->setId($id);
+
+        $id = self::removeSpecialChars($id);
+
+        $query = "SELECT * FROM " . $table . " WHERE id = :id";
+        $st = self::$pdo->prepare($query);
+        $st->bindParam(':id', $id, PDO::PARAM_INT);
+        $st->execute();
+        $data = $st->fetch($fetchType);
+        return self::getOneIstance($data);
+    }
+
+    public function delete(): bool
+    {
+        $table = static::$table;
+
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
+        }
+
+        // Costruisci la query di eliminazione
+        $findRecord = $this->whereClause ? $this->whereClause : " WHERE id = :id";
+        $query = "DELETE FROM $table $findRecord";
+
+        // Prepara la query con PDO
         $stmt = self::$pdo->prepare($query);
-    
-        // Associa i valori per l'aggiornamento
-        foreach ($values as $field => $value) {
-            $stmt->bindValue(":$field", self::removeSpecialChars($value));
-        }
-    
-        // Associa i valori per la clausola WHERE
+
+        // Associa i parametri della clausola WHERE
         foreach ($this->bindings as $param => $value) {
             $stmt->bindValue($param, $value);
         }
-    
-        return $stmt->execute();
 
+        // Se non c'è una clausola WHERE e ':id' non è già impostato, imposta ':id'
+        if (!isset($this->bindings[':id']) && !$this->whereClause) {
+            $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+        }
+
+        // Esegui la query
+        return $stmt->execute();
     }
 
 
-    
-    // cerca tutti
-    public static function findAll($fetchType = PDO::FETCH_ASSOC)
+    public function update(array $values): bool
     {
         $table = static::$table;
-        $st = self::$pdo->prepare("SELECT * FROM $table");
-        $st->execute();
-        return $st->fetchAll((int)$fetchType);
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
+        }
+
+        $fillable = static::$fillable;
+        if (!empty($fillable)) {
+            $values = array_filter($values, fn ($key) => in_array($key, $fillable), ARRAY_FILTER_USE_KEY);
+        }
+
+        // Imposta la clausola SET
+        $setClause = implode(', ', array_map(fn ($key) => "$key = :$key", array_keys($values)));
+
+        // Controlla e imposta la clausola WHERE
+        $findRecord = $this->whereClause ? $this->whereClause : " WHERE id = :id";
+        if (!isset($this->bindings[':id']) && !$this->whereClause) {
+            $this->bindings[':id'] = $this->id;
+        }
+
+        // Prepara la query
+        $query = "UPDATE $table SET $setClause $findRecord";
+        $stmt = self::$pdo->prepare($query);
+
+        // Associa i valori dei parametri nella clausola SET
+        foreach ($values as $field => $value) {
+            $stmt->bindValue(":$field", self::removeSpecialChars($value));
+        }
+
+        // Associa i valori dei parametri nella clausola WHERE
+        foreach ($this->bindings as $param => $value) {
+            $stmt->bindValue($param, $value);
+        }
+
+        // Esegui la query
+        return $stmt->execute();
     }
-    
+
+    public function dirtyUpdate(array $values): bool
+    {
+        $table = static::$table;
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
+        }
+
+        $fillable = static::$fillable;
+        if (!empty($fillable)) {
+            $values = array_filter($values, fn ($key) => in_array($key, $fillable), ARRAY_FILTER_USE_KEY);
+        }
+
+        // Rimuovi solo i tag PHP dai valori
+        $values = array_map([self::class, 'removePhpTags'], $values);
+
+
+
+        // Imposta la clausola SET
+        $setClause = implode(', ', array_map(fn ($key) => "$key = :$key", array_keys($values)));
+
+        // Controlla e imposta la clausola WHERE
+        $findRecord = $this->whereClause ? $this->whereClause : " WHERE id = :id";
+        if (!isset($this->bindings[':id']) && !$this->whereClause) {
+            $this->bindings[':id'] = $this->id;
+        }
+
+        // Prepara la query
+        $query = "UPDATE $table SET $setClause $findRecord";
+        $stmt = self::$pdo->prepare($query);
+
+        // Associa i valori dei parametri nella clausola SET
+        foreach ($values as $field => $value) {
+            $stmt->bindValue(":$field", $value, PDO::PARAM_STR);
+        }
+
+        // Associa i valori dei parametri nella clausola WHERE
+        foreach ($this->bindings as $param => $value) {
+            $stmt->bindValue($param, $value);
+        }
+
+        // Esegui la query
+        try {
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            error_log("Error executing query: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+
+
     /**
      * Summary of save
+     * @param array $values
+     * @throws \Exception
+     * @return bool
      * 
-     * Tramite questo metodo salviamo i dati nel database
-     * 
-     * @param array $values 
-     * // contiene un array associativo, precisamente la richiesta POST effettuata
-     * @return bool // ritrona il salvataggio della query nel DB
+     * Crea un nuovo elemento del database. 
      */
-    public static function save(array $values)
+    public static function save(array $values): bool
     {
+        $table = static::$table;
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
+        }
+
         $fillable = static::$fillable;
 
-         // Filtra valori di values
-        if(!empty($fillable)){
-           
-           $values = array_filter( $values, function($chiave) use ($fillable){
-                return in_array($chiave, $fillable);
-            }, ARRAY_FILTER_USE_KEY);
-
+        if (!empty($fillable)) {
+            $values = array_filter($values, fn ($key) => in_array($key, $fillable), ARRAY_FILTER_USE_KEY);
         }
 
-       
-        // INSERT INTO table (campo1,campo2) VALUES (:campo1,:campo2)
-        $table = static::$table;
+        $values = array_map(fn ($value) => self::removeSpecialChars($value), $values);
+        $keys = array_keys($values);
+        $fields = implode(',', $keys);
+        $placeholders = implode(',', array_map(fn ($key) => ":$key", $keys));
 
-        foreach($values as $chiave =>$value){
-           $values[$chiave] = self::removeSpecialChars($value);
-        }
-        
-        $keys = array_keys($values); //prendiamo le chiavi della richiesta POST
-        $fields = implode(',', $keys); // prendiamo le chiavi e convertiamo in stringa con virgola
-        $placeholder = implode( ',',
-            array_map(fn ($key) => ":$key", $keys) //inseriamo i punti per bindValue
-        );
-        $query = "INSERT INTO $table ($fields) VALUES ($placeholder)";
+        $query = "INSERT INTO $table ($fields) VALUES ($placeholders)";
         $stmt = self::$pdo->prepare($query);
+
         foreach ($values as $field => $fieldValue) {
             $stmt->bindValue(":$field", $fieldValue);
         }
+
         return $stmt->execute();
     }
 
-    /**
-     * Summary of removeSpecialChars
-     * 
-     * Pulisce le stringe dai caratteri speciali
-     * @param mixed $input input inserito dall'utente
-     * @return string pulita dai caratteri speciali
-     */
-    public static function removeSpecialChars($input) {
-        
-        $safe_input = htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
-        $clearInput = strip_tags($safe_input);
-        return $clearInput;
+    public static function dirtySave(array $values): bool
+    {
+        // Assicurati che la tabella sia definita
+        $table = static::$table;
+        if (empty($table)) {
+            throw new \Exception("Nome della tabella non impostato.");
+        }
+
+        // Filtra i valori per includere solo quelli che sono nel $fillable
+        $fillable = static::$fillable;
+        if (!empty($fillable)) {
+            $values = array_filter($values, fn ($key) => in_array($key, $fillable), ARRAY_FILTER_USE_KEY);
+        }
+
+        // Rimuovi i tag PHP dai valori
+        $values = array_map([self::class, 'removePhpTags'], $values);
+
+        // Crea la query di inserimento
+        $keys = array_keys($values);
+        $fields = implode(',', $keys);
+        $placeholders = implode(',', array_map(fn ($key) => ":$key", $keys));
+        $query = "INSERT INTO $table ($fields) VALUES ($placeholders)";
+
+        // Prepara e esegui la query
+        $stmt = self::$pdo->prepare($query);
+
+        foreach ($values as $field => $fieldValue) {
+            $stmt->bindValue(":$field", $fieldValue, PDO::PARAM_STR);
+        }
+
+        try {
+            return $stmt->execute();
+        } catch (\PDOException $e) {
+            // Logga l'errore e rilancia l'eccezione
+            error_log("Error executing query: " . $e->getMessage());
+            throw $e;
+        }
     }
-    
+
+    private static function removePhpTags(string $value): string
+    {
+        // Rimuove i tag PHP dai valori
+        return preg_replace('/<\?php.*?\?>/s', '', $value);
+    }
+
+
+    public static function removeSpecialChars($input): string
+    {
+        $cleaned = strip_tags($input);
+        $cleaned = htmlspecialchars($cleaned, ENT_QUOTES, 'UTF-8');
+
+        return $cleaned;
+    }
 }

@@ -39,7 +39,8 @@ class AuthService
             'AUTH_TOKEN' => $token,
             'LAST_PING' => time(),
             'LOGGED_IN' => TRUE,
-            'IP' => $_SERVER['REMOTE_ADDR']
+            'IP' => $_SERVER['REMOTE_ADDR'],
+            'DEVICE' =>  $_SERVER['HTTP_USER_AGENT']
         ];
 
         SessionService::create($sessionUser);

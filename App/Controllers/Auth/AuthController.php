@@ -39,8 +39,6 @@ class AuthController extends Controller
             return $this->render('Auth.login', ['message' => 'Credenziali non valide!']);
         }
 
-        
-
         // conferma
         $confirmPassword = password_verify($data['password'], $user->password);
 

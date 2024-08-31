@@ -1,14 +1,14 @@
 <?php
-/**
- * 
- * Sommario HomeContrller:
- *  
- * Questa classe indica tra rotte e variabili
- * 
- */
 namespace App\Controllers;
-use \App\Core\Controller;
+use App\Core\ORM;
 use \App\Core\Mvc;
+use App\Model\Skill;
+use App\Model\Article;
+use App\Model\Profile;
+use App\Model\Project;
+use \App\Core\Controller;
+use App\Model\Curriculum;
+use App\Model\Certificato;
 
 class HomeController extends Controller {
 
@@ -20,15 +20,15 @@ class HomeController extends Controller {
 
     public function index() {
         // recupero dati dal database
-        $descrizioneInDB = "Descrizione della home page";
 
-        $this->render('home', [
-            'descrizione' => $descrizioneInDB
-        ]);
+    
+        $message = "";
+
+        $this->render('home' );
     }
 
-    public function cookie(){
-        $this->render('cookie-law',[]);
-    }
+  
+    
+    
 
 }

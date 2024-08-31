@@ -6,7 +6,7 @@ class Component {
     private array $items = [];
     private string $name;
 
-    public function __construct(string $componentName) {
+    public function __construct(?string $componentName = '') {
         $this->name = $componentName;
     }
 

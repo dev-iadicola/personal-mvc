@@ -39,4 +39,21 @@ class Response {
         );
     }
 
+    public function set413() {
+        // Imposta il layout desiderato
+        $this->view->setLayout('default');
+    
+        // Renderizza la vista con l'errore 413
+        $errorContent = $this->view->render('error', [
+            'code' => 413,
+            'errorMsg' => 'The request entity is too large.'
+        ]);
+    
+        // Imposta il codice di stato e il contenuto della risposta
+        $this->setCode(413);
+        $this->setContent($errorContent);
+    }
+
+
+
 }

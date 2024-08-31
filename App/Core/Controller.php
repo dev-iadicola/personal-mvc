@@ -1,6 +1,10 @@
 <?php
 namespace App\Core;
 use \App\Core\Mvc;
+use App\Core\Validator;
+use App\Core\UploadFile;
+use App\Core\Services\SessionService;
+
 /**
  *  sommario di Controller
  * 
@@ -13,6 +17,7 @@ use \App\Core\Mvc;
 class Controller {
 
     public function __construct(public Mvc $mvc) {
+        $mvc->sessionService->verifyTimeFlashSession();
     }
 
         /**
@@ -25,10 +30,18 @@ class Controller {
      *  
      * per maggiori particolari,andare nel file View presente su /App/Core/View
      */
-    public function render($view, $values = ['message' => '']) {
+    public function render($view, $variables = [], $values = ['message' => '']) {
         
-        $content = $this->mvc->view->render($view, $values);
+        $content = $this->mvc->view->render($view, $values, $variables);
         $this->mvc->response->setContent($content);
+    }
+
+    public function redirect($var){
+        $this->mvc->response->redirect($var);
+    }
+
+    public function statusCode413(){
+        $this->mvc->response->set413();
     }
 
     public function redirectBack(){
@@ -36,7 +49,94 @@ class Controller {
         $this->mvc->response->redirect($back);
     }
 
+    public function view($view, $variables){
 
+      return   $this->mvc->view->view($view, $variables);
+
+    }
+
+    public function withError($message){
+        SessionService::setFlashSession('error',$message);
+     //   var_dump(SessionService::get('error')); exit;
+    }
+
+    public function withSuccess($message){
+        SessionService::setFlashSession('success', $message);
+    }
+
+    public function resetImg(array $data){
+
+        if ($data['img']['error'] === UPLOAD_ERR_NO_FILE) {
+            unset($data['img']);
+        }elseif ($data['img']['error'] !== UPLOAD_ERR_NO_FILE) {
+            (new UploadFile($this->mvc))->deleteFile($data['img']);
+            $data['img'] = $this->checkImage($data);
+    
+        }
+    }
+    public function deleteFile(string $img){
+        if(isset($img)){
+            $isImgDelete = (new UploadFile($this->mvc))->deleteFile($img);
+            if ($isImgDelete === TRUE) {
+                return true;
+            } 
+            return false;
+        }
+        return null;
+    }
+
+    public static function validateImage($file)
+{
+    // Controlla se il file è stato caricato senza errori
+    if (isset($file['tmp_name']) && is_uploaded_file($file['tmp_name'])) {
+        // Verifica se il file è un'immagine
+        $imageSize = @getimagesize($file['tmp_name']);
+        return is_array($imageSize);
+    }
+    return false;
+}
+
+    public function checkImage($data)
+    {
+        $originalNameFile =  $data['img']['name'];
+
+         $newName = str_replace(' ', '',date('Y-m-d-H-i-s-').$data['img']['name']);
+
+         $data['img']['name'] =  $newName;
+       
+        $validImage = Validator::validateImage(
+            $data['img']
+        );
+        if ($validImage === FALSE) {
+            $this->withError('Non sono accettati formati che non sono immagini');
+            return $this->redirectBack();
+        }
+
+        $uploadFile = new UploadFile($this->mvc);
+        $uploadFile->storageImage($data['img']);
+        return $uploadFile->getPathImg();
+
+     
+    }
+
+    public function checkPdf($data)
+    {
+        $validImage = Validator::validatePDF(
+            $data['img']
+        );
+        if ($validImage === FALSE) {
+            $this->withError('Non sono accettati formati che non sono immagini');
+            return $this->redirectBack();
+        }
+
+        $uploadFile = new UploadFile($this->mvc);
+        $uploadFile->storeFile($data['img']);
+
+        return  $uploadFile->getPathImg();
+    }
+
+
+   
     /**
      * Modifica il Layout della pagina
      */

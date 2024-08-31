@@ -11,10 +11,13 @@ class MaintenanceMiddleware implements MiddlewareInterface
     {
         $stringManitence = getenv('MAINTENANCE'); // Prendiamo lo status di manutenzione
         
-        $actualPath = $mvc->request->getRequestPath(); // recuperiamo il percorso URL dell'user
+        $actualPath = $mvc->request->getRequestPath(); // recuperiamo il percorso URL dell'utente che naviga
         
-        // in caso di manutenzione entra qui
-        if ($stringManitence === 'true' && $actualPath !== '/coming-soon')
-            $mvc->response->redirect('/coming-soon');
+       
+
+        
+        if ($stringManitence === 'true' && $actualPath !== '/coming-soon' && $actualPath !== '/login' &&  !str_contains( $actualPath,'/admin')){
+           return $mvc->response->redirect('/coming-soon');
+        }
     }
 }

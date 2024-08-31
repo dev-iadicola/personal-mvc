@@ -6,6 +6,7 @@ class Request {
     private string $method;
     private array $post;
 
+    
     public function __construct() {
         $this->path = $this->getRequestPath();
         $this->method = $this->getRequestMethod();
@@ -14,7 +15,12 @@ class Request {
 
     // Cattura richiesta post
     public function getPost() {
-        return $_POST ?? [];
+    $postData = $_POST ?? [];
+    $fileData = $_FILES ?? [];
+
+    $combinedData = array_merge($postData, $fileData);
+
+    return $combinedData;
     }
 
     // Preleva la request URI

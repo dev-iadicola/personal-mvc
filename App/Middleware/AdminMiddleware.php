@@ -15,23 +15,18 @@ class AdminMiddleware implements MiddlewareInterface
 
     public function exec(Mvc $mvc)
     {
-        $validAuth = false; 
+        $validAuth = $this->isAuthenticated() && $this->timerSession();
 
         
-        if((session_status() == PHP_SESSION_NONE && $this->isAuthenticated() && $this->timerSession()  )){
-            $validAuth = true;
-        }else{
-            $validAuth = false;
-        }
-        //var_dump($validAuth);exit;
-       
-        if($validAuth == FALSE){
+
+        if (!$validAuth) {
             SessionService::destroy();
-            return  $mvc->response->redirect('/login');
-             
+            return $mvc->response->redirect('/login');
         }
         
     }   
+
+  
     protected function isAuthenticated() {
         if (SessionService::get('AUTH_TOKEN')) {
             $token = SessionService::get('AUTH_TOKEN');
@@ -39,6 +34,8 @@ class AdminMiddleware implements MiddlewareInterface
         }
         return false;
     }
+
+
     
     protected function verifyTokenInDatabase($token) {
         $user = User::where('token',$token)->first();

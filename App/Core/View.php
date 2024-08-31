@@ -2,6 +2,7 @@
 namespace App\Core;
 
 use \App\Core\Mvc;
+use App\Core\Services\SessionService;
 
 class View {
 
@@ -9,24 +10,33 @@ class View {
 
     public function __construct(public Mvc $mvc) {}
 
-    // rimpiazziamo i placeholder nelle pagine php
-    public function render($page, $values = ['message'=> '']) {
-        $page = str_replace('.','/',$page);
+
+    public function setLayout(string $layout){
+        $this->layout = $layout;
+    }
+
+    // Rimpiazziamo i placeholder nelle pagine php
+    public function render(string $page, array $values = ['message'=> ''], array $variables = []): string {
+        $page = str_replace('.', '/', $page);
 
         $layoutValue = [
             'page' => $page,
             'menu' => $this->mvc->config['menu'],
         ];
    
-        //ricerca layouts e page
+        // Ricerca layouts e page
         $layoutContent = $this->getViewContent("layouts", $this->layout, $layoutValue);
-        $pageContent = $this->getViewContent("pages",$page, $layoutValue);
+        $pageContent = $this->getViewContent("pages", $page, $layoutValue, $variables);
 
         // Ricambia Includes 
-         $pageContent = $this->processIncludes($pageContent);
-         $layoutContent = $this->processIncludes($layoutContent);
+        $pageContent = $this->processIncludes($pageContent, variables: $variables);
+        $layoutContent = $this->processIncludes($layoutContent, $variables);
+        // eseguito due volte nel caso si trattasse di un placeholder include con all'interno unaltro placeholder include
+        $pageContent =  $this->processIncludes($pageContent,variables: $variables);
+
+
         
-        //sostituzione dei placelholder {{page}} con un file.php
+        // Sostituzione dei placeholder {{page}} con un file.php
         $pageContent = $this->renderContent($pageContent, $values);
         return $this->renderContent($layoutContent, [
             'page' => $pageContent,
@@ -34,20 +44,30 @@ class View {
         ]);
     }
 
+      // Nuova funzione per passare direttamente le variabili alla vista
+      private function renderView(string $folder, string $item, array $variables): string {
+        ob_start();
+        extract($variables);
+        include "$folder/$item.php";
+        return ob_get_clean();
+    }
+
+
+    // Nuova funzione per passare direttamente le variabili alla vista
     
 
     /**
-     * Summary of renderContent
-     * @param mixed $content // contenuto della pagina
-     * 
-     * @param mixed $values //valori da inserire
-     * @return array|string // ritorno di str_rpleace() per ricevere 
-     * il file con rimpiazzamento dei placeholder con il file o variabile inserita 
-     * nel controller come array/stringa inniettato nel controller interessato
+     * Renderizza una vista.
+     *
+     * @param string $view Nome della vista (senza estensione)
+     * @param array $variables Variabili da passare alla vista
+     * @return string Contenuto della vista
      */
-    private function renderContent($content, $values) {
+  
+ 
+    private function renderContent(string $content, array $values): string {
         $chiavi = array_keys($values);
-        $chiavi = array_map(fn($chiave) => "{{".$chiave."}}", $chiavi);        
+        $chiavi = array_map(fn($chiave) => "{{".$chiave."}}", $chiavi); 
         foreach($values as $key => $value) {            
             if($value instanceof Component) {
                 $values[$key] = $this->renderComponent($value);
@@ -57,7 +77,9 @@ class View {
         return str_replace($chiavi, $valori, $content);
     }
 
-    public function renderComponent($componente) {
+  
+
+    public function renderComponent(Component $componente): string {
         $nomeComponente = $componente->getName();
         $componentContent = $this->getViewContent("components", $nomeComponente);
         $content = '';
@@ -67,46 +89,30 @@ class View {
         return $content;
     }
 
-    /**
-     * @param mixed $folder // folder: inserisci il valore come stringa per trovare il percorso
-     * @param mixed $page // pagina finale (variabile non obbligatoria) 
-     * @return bool|string ritorna il percorso specifico del file
-     * 
-     */
+   
 
-    private function getViewContent($folder, $item, $values = []) {
+    private function getViewContent(string $folder, string $item, array $values = [], array $variables = []): string {
         extract($values);
+        extract($variables);
+        extract(SessionService::getAll()); // per visualizzare i messaggi di errore e successo
         $views = $this->mvc->config['folder']['views'];
         ob_start();
         include "$views/$folder/$item.php";
         return ob_get_clean();
     }
 
-
-    /**
-     * Summary of processIncludes
-     * 
-     * Questo metodo permette di sostituire gli elementi nelle pagine scelte inniettate nel metodo.
-     * Tutti gli elementi all'interno della pagina definiti @include('percorso.della.pagina') verranno sostituiti con
-     * l'altra pagina scelta all'intenro di @include
-     * 
-     * @param string $content può essere layout che page che si trovano in views/page e views/layout 
-     * @return string 
-     * 
-     */
-    private function processIncludes($content)
-    {
-        // definisci il pattern dell'espressione regolare
+    private function processIncludes(string $content, array $variables): string {
+        // Definisci il pattern dell'espressione regolare
         $pattern = '/@include\(\s*\'([^\']+)\'\s*\)/';
-
-        // esegui il match
+    
+        // Esegui il match
         if (preg_match_all($pattern, $content, $matches)) {
-            // estrai e sostituisci tutti i contenuti trovati
+            // Estrai e sostituisci tutti i contenuti trovati
             foreach ($matches[1] as $includeContent) {
-                $includePath = $includeContent; //definisci il percorso del file incluso
+                $includePath = $includeContent; // Definisci il percorso del file incluso
                 $strReplaceIncludePath = str_replace('.', '/', $includePath);
-                $includeFileContent = $this->getViewContent('', $strReplaceIncludePath); //trova il percoro;
-
+                $includeFileContent = $this->getViewContent('', $strReplaceIncludePath, [], $variables); // Passa le variabili qui
+    
                 if ($includeFileContent !== null) {
                     $content = str_replace("@include('$includeContent')", $includeFileContent, $content);
                 } else {
@@ -114,7 +120,15 @@ class View {
                 }
             }
         }
+        $content = $this->processDeleteInclude(content: $content);
         return $content;
-    } 
+    }
 
+    private function processDeleteInclude(string $content){
+        $inputDelete = "<input type=\"hidden\" name=\"_method\" value=\"DELETE\">";
+        return str_replace('@delete',$inputDelete, $content);
+    }
+
+
+    
 }
