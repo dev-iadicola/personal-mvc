@@ -56,7 +56,6 @@
                     <ul>
                         <li><a href="/" class="<?= isActivePage('home', $page) ?>">Home</a></li>
                         <li><a href="/crud-operations" class="<?= isActivePage('crud-operations', $page) ?>">Crud Operations</a></li>
-                        <li><a href="/login" class="<?= isActivePage('crud-operations', $page) ?>">Login</a></li>
                      
                         <li><a target="_blank" href="https://github.com/AndroLuix/" class="<?= isActivePage('github', $page) ?>">GitHub <i style="color: white;" class="fa fa-github" aria-hidden="true"></i></a> </li>
                     </ul>
