@@ -35,6 +35,7 @@ class PostController extends Controller{
         //var_dump($request->getPost()); exit;
         $postData = $request->getPost();
         Post::save($postData);
+        $this->withSuccess('New post added');
         return $this->redirectBack();
     }
 
@@ -47,6 +48,18 @@ class PostController extends Controller{
         $post = Post::find($id);
         $post->delete();
         $this->withSuccess('Success, task deleted!');
+        return $this->redirectBack();
+    }
+
+    public function update(Request $request, $id){
+
+        $data = $request->getPost();
+
+       $post =   Post::find($id);
+
+       $post->update($data);
+
+        $this->withSuccess('Update!');
         return $this->redirectBack();
     }
     

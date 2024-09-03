@@ -9,6 +9,8 @@
     --color-design: #272424;
     --color-layout: #ffffff;
     --color-text-footer: #bababa;
+    --color-text-sm: black;
+    
 }
 /* OVERRIDE bootstrap*/
 body {
@@ -191,6 +193,10 @@ nav a.active {
     background-color: white;
 }
 
+form input{
+    color: black;
+}
+
 @media(min-width: 700px) {
     #menu-icon {
         display: none;
@@ -227,6 +233,10 @@ nav a.active {
     nav a {
         font-size: 1rem;
     }
+
+
+
+    
 
 
 }
@@ -410,44 +420,11 @@ ____________________________*/
         margin: 0; /* Rimuove margini di default */
     }
 
+
     /*SMARTPHONE */
     
     /* Disabilita l'animazione su schermi piccoli (smartphone) */
-    @media (max-width: 768px) {
-        .animated-gradient {
-            animation: none;
-            background: linear-gradient(45deg, #cce4f7, #cce4f7); /* Solo azzurrino su schermi piccoli */
-        }
-        h1,h2,h3,h4,h5, p{
-            color: var(--color-text); 
-        }
-
-        form{
-            background-color: rgba(0, 0, 0, 0) !important;
-            border: solid 3px black;
-            border-radius: 20px;
-          
-            
-        }
-        
-      
-        input, select, option, textarea {
-            background-color: aliceblue !important;
-        }
-
-        
-        body div{
-            background-color: #cce4f7 !important;
-        }
-
-        footer div{
-            background-color: black !important;
-        }
-        #menu a{
-            color: black;
-        }
-    }
-
+   
     .hidden {
         display: none;
     }

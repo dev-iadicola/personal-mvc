@@ -18,6 +18,7 @@ Route::get('/', HomeController::class, 'index');
 Route::get('/crud-operations', PostController::class,'index');
 Route::post('/post-create', PostController::class,'create');
 Route::post('/post-delete/{id}', PostController::class,'destroy');
+Route::post('/post-edit/{id}',PostController::class,'update');
 
 
 // Auth
