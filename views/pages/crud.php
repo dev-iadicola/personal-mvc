@@ -8,10 +8,9 @@
 
 
     <!-- Create Post Form -->
-    <div class="grid grid-cols-1 gap-4">
-
-        <!-- crete -->
-        <div class="col-start-1  col-end-5">
+    <div class="grid grid-cols-3 gap-4 flex justify-center">
+    <!-- crete -->
+    <div class="col-start-1 col-end-[-1] ">
             <div id="createPostForm" class="mb-6">
                 <h2 class="text-2xl font-semibold mb-4 bg-black  p-3 rounded-lg ">Create Activity</h2>
                 <form id="formCreate" action="/post-create" method="POST" class="bg-black p-4 rounded shadow-md">
@@ -56,7 +55,9 @@
         <!-- List -->
         <div id="postList" class="mb-6 col-start-10 col-end-12">
             <div id="postList">
+                <?php if(!empty($posts)): ?>
                 <h2 class="text-3xl bg-black  p-3 rounded-lg  font-semibold mb-6 col-span-full"> List</h2>
+                <?php endif ?>
                 <?php foreach ($posts as $post): ?>
                     <div class="bg-black p-6 rounded-lg shadow-lg my-10">
                         <h3 class="text-2xl  font-semibold mb-2"><?= htmlspecialchars($post->title) ?? 'Title is empty.' ?></h3>
