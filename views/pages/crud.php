@@ -9,9 +9,8 @@
 
     <!-- Create Post Form -->
     <div class="grid grid-cols-3 gap-4 flex justify-center">
-    <!-- crete -->
-    <div class="col-start-1 col-end-[-1] ">
-            <div id="createPostForm" class="mb-6">
+        <!-- crete -->
+            <div id="createPostForm" class="mb-6 col-start-1 col-end-9 ">
                 <h2 class="text-2xl font-semibold mb-4 bg-black  p-3 rounded-lg ">Create Activity</h2>
                 <form id="formCreate" action="/post-create" method="POST" class="bg-black p-4 rounded shadow-md">
                     <div class="mb-4">
@@ -26,7 +25,6 @@
                     <button type="reset" class="ml-4 bg-gray-500 text-white py-2 px-4 rounded-md shadow-md">Cancel</button>
                 </form>
             </div>
-        </div>
 
         <!-- Edit Post Form -->
         <?php foreach ($posts as $post): ?>
@@ -40,8 +38,8 @@
                     </div>
                     <div class="mb-4 text-black">
                         <label for="editDescription" class="block text-sm font-medium text-gray-700">Description</label>
-                        <textarea id="editDescription" name="description" 
-                        class="mt-1 block w-full border border-gray-300 
+                        <textarea id="editDescription" name="description"
+                            class="mt-1 block w-full border border-gray-300 
                     rounded-md shadow-sm p-2" rows="4" required><?= $post->description ?></textarea>
                     </div>
                     <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded-md shadow-md">Update</button>
@@ -53,10 +51,11 @@
 
 
         <!-- List -->
-        <div id="postList" class="mb-6 col-start-10 col-end-12">
-            <div id="postList">
-                <?php if(!empty($posts)): ?>
-                <h2 class="text-3xl bg-black  p-3 rounded-lg  font-semibold mb-6 col-span-full"> List</h2>
+        <?php if (!empty($posts)): ?>
+            <div id="postList" class="mb-6 col-start-10 col-end-12">
+                <div id="postList">
+
+                    <h2 class="text-3xl bg-black  p-3 rounded-lg  font-semibold mb-6 col-span-full"> List</h2>
                 <?php endif ?>
                 <?php foreach ($posts as $post): ?>
                     <div class="bg-black p-6 rounded-lg shadow-lg my-10">
@@ -71,8 +70,8 @@
                         </div>
                     </div>
                 <?php endforeach ?>
+                </div>
             </div>
-        </div>
 
 
 
