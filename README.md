@@ -1,5 +1,7 @@
 # Introducing the MVC Framework
 
+## PHP 8 requirements
+
 Mine MVC Framework provides a robust and flexible solution for building modern web applications. This framework follows the Model-View-Controller (MVC) architectural pattern, which separates application logic into three interconnected components. This separation helps manage complexity and enhance maintainability.
 
 ## Core Features
@@ -24,8 +26,8 @@ Mine MVC Framework provides a robust and flexible solution for building modern w
 
 
 # Introduzione al Framework MVC
-
-Il mio Framework MVC offre una soluzione robusta e flessibile per la creazione di applicazioni web moderne. Questo framework segue il modello architetturale Model-View-Controller (MVC), che separa la logica dell'applicazione in tre componenti interconnesse. Questa separazione aiuta a gestire la complessità e migliora la manutenibilità.
+## Requisiti PHP 8
+Il Framework MVC offre una soluzione robusta e flessibile per la creazione di applicazioni web moderne. Questo framework segue il modello architetturale Model-View-Controller (MVC), che separa la logica dell'applicazione in tre componenti interconnesse. Questa separazione aiuta a gestire la complessità e migliora la manutenibilità.
 
 ## Caratteristiche Principali
 
